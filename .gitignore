@@ -1,0 +1,76 @@
+# Build artifacts
+.gradle/
+build/
+out/
+target/
+
+# Gradle Wrapper files (but NOT the essential ones)
+!gradle/wrapper/gradle-wrapper.properties
+!.gradle-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE-specific exclusions
+
+## VS Code
+.vscode/
+*.code-workspace
+
+## IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+## Eclipse
+.classpath
+.project
+.settings/
+
+## NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+## Spring Tool Suite (STS)
+.springBeans/
+sts4.properties
+*.launch
+
+## MacOS
+.DS_Store
+
+## Linux
+*.swp
+
+## Windows
+Thumbs.db
+
+# Test reports
+/test-results/
+*.xml
+
+# Environment files
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.~lock.
+
+# Application files
+*.jar
+*.war
+*.ear
