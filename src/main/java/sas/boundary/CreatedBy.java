@@ -1,16 +1,14 @@
 package sas.boundary;
 
-import sas.boundary.User;
-
 public class CreatedBy {
-	private User userId;
+	private UserId userId;
 	
 
-	public User getUserId() {
+	public UserId getUserId() {
 		return userId;
 	}
 
-	public void setUserId(User userId) {
+	public void setUserId(UserId userId) {
 		this.userId = userId;
 	}
 

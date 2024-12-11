@@ -1,47 +1,44 @@
 package sas.controller;
 
-import java.time.Clock;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
 
-import ch.qos.logback.core.joran.spi.ConsoleTarget;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import sas.boundary.*;
 
 @RestController
-@RequestMapping(path = {"/aii/objects"})
 public class ObjectController {
+	@Value("${spring.application.name:defaultAppName}")
 	private String springApplicationName;
-	private Map<ObjectId, ObjectBoundary> dbMockup;
+	private Map<ObjectId, ObjectBoundary> objectsDbMockup;
 	private AtomicLong nextID;
 
 	public ObjectController(){
-		this.dbMockup = Collections.synchronizedMap(new HashMap<>());
-		this.nextID = new AtomicLong(100L);
-	}
-
-	@Value("${spring.application.name:defaultAppName}")
-	public void setSpringApplicationName(String springApplicationName) {
-		this.springApplicationName = springApplicationName;
-		System.err.println("********" + this.springApplicationName);
+		this.objectsDbMockup = Collections.synchronizedMap(new HashMap<>());
+		this.nextID = new AtomicLong(1L);
 	}
 	
 	@GetMapping(
-			path = {"/{systemID}/{id}"},
+			path = {"/aii/objects/{systemID}/{id}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary getObjectById(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id) {
 
+		// check if any of the ID's are either empty or only whitespace
+		if ( systemID.isBlank() || id.isBlank() ) {
+			throw new RuntimeException("systemID and id can't be blank");
+		}
+
 		ObjectId objId = new ObjectId();
 		objId.setId(id);
 		objId.setSystemId(systemID);
 
-		ObjectBoundary rv = this.dbMockup.get(objId);
+		ObjectBoundary rv = this.objectsDbMockup.get(objId);
 		if (rv == null){
 			throw new RuntimeException("Could not find Object by ID: " + objId);
 		}
@@ -51,22 +48,25 @@ public class ObjectController {
 	}
 
 	@GetMapping(
+			path = {"/aii/objects"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary[] getAllObjects() {
 
-		ObjectBoundary[] rv = this.dbMockup
+		ObjectBoundary[] rv = this.objectsDbMockup
 				.values()
 				.toArray(new ObjectBoundary[0]);
 
 		// for tests
-		System.err.println("*** db length: " + this.dbMockup.size() + " , returned array size: " + rv.length);
+		System.err.println("*** db length: " + this.objectsDbMockup.size() + " , returned array size: " + rv.length);
 		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
 	
 	@PostMapping(
+			path = {"/aii/objects"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE},
 			produces = {MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.CREATED)
 	public ObjectBoundary insertObjectToDb(
 			@RequestBody ObjectBoundary newObj){
 
@@ -89,7 +89,6 @@ public class ObjectController {
 		// validate location and set to default if invalid
 		Location objLocation = newObj.getLocation();
 		if ( objLocation == null || objLocation.getLat() == null || objLocation.getLng() == null ){
-
 			// if no valid location was given - set the location to Google's Headquarters - Mountain View, California
 			newObj.setLocation(new Location(37.4220,-122.0841));
 		}
@@ -105,8 +104,8 @@ public class ObjectController {
 
 		// validate created by
 		CreatedBy cb = newObj.getCreatedBy();
-		User user = cb.getUserId();
-		if ( cb == null || user == null || user.getUserId() == null || user.getEmail() == null ){
+		UserId user = cb.getUserId();
+		if ( cb == null || user == null || user.getSystemId() == null || user.getEmail() == null ){
 			throw new RuntimeException("New object must contain a valid CreatedBy field - with a valid userID!");
 		}
 
@@ -116,7 +115,7 @@ public class ObjectController {
 		}
 
 		// INSERT newObj to db
-		this.dbMockup.put(
+		this.objectsDbMockup.put(
 				newObj.getObjectId(),
 				newObj
 		);
@@ -126,17 +125,24 @@ public class ObjectController {
 
 
 	@PutMapping(
-			path = {"/{systemID}/{id}"},
+			path = {"/aii/objects/{systemID}/{id}"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE})
+	@ResponseStatus(HttpStatus.CREATED)
 	public void updateObject(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id,
 			@RequestBody ObjectBoundary update){
+
+		// check if any of the ID's are either empty or only whitespace
+		if ( systemID.isBlank() || id.isBlank() ) {
+			throw new RuntimeException("systemID and id can't be blank");
+		}
+
 		ObjectId objId = new ObjectId(id, systemID);
 
-		if ( this.dbMockup.containsKey(objId) ){
+		if ( this.objectsDbMockup.containsKey(objId) ){
 			boolean dirty = false;
-			ObjectBoundary updatedObject = this.dbMockup.get(objId); // original object
+			ObjectBoundary updatedObject = this.objectsDbMockup.get(objId); // original object
 
 			// if alias updated
 			if ( update.getAlias() != null ){
@@ -174,12 +180,19 @@ public class ObjectController {
 
 			if (dirty){
 				// update
-				this.dbMockup.put(updatedObject.getObjectId(), updatedObject);
+				this.objectsDbMockup.put(updatedObject.getObjectId(), updatedObject);
 			}
 
 		}else {
 			throw new RuntimeException("Couldn't find any object with specified IDs");
 		}
+	}
+
+	@DeleteMapping(
+			path = {"/aii/admin/objects"})
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteAllObjects(){
+		this.objectsDbMockup.clear();
 	}
 }
 
