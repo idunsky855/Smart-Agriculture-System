@@ -94,6 +94,15 @@ public class ObjectController {
 			newObj.setLocation(new Location(37.4220,-122.0841));
 		}
 
+		// validate active
+		if ( newObj.getActive() == null ){
+			// default is active = false
+			newObj.setActive(false);
+		}
+
+		// set creation timestamp - now
+		newObj.setCreationTimestamp(new Date());
+
 		// validate created by
 		CreatedBy cb = newObj.getCreatedBy();
 		User user = cb.getUserId();
@@ -101,9 +110,7 @@ public class ObjectController {
 			throw new RuntimeException("New object must contain a valid CreatedBy field - with a valid userID!");
 		}
 
-		// set creation timestamp - now
-		newObj.setCreationTimestamp(new Date());
-
+		// validate if objectDetails exist or should be created
 		if ( newObj.getObjectDetails() == null ){
 			newObj.setObjectDetails(new HashMap<>());
 		}
@@ -115,6 +122,64 @@ public class ObjectController {
 		);
 
 		return newObj;
+	}
+
+
+	@PutMapping(
+			path = {"/{systemID}/{id}"},
+			consumes = {MediaType.APPLICATION_JSON_VALUE})
+	public void updateObject(
+			@PathVariable("systemID") String systemID,
+			@PathVariable("id") String id,
+			@RequestBody ObjectBoundary update){
+		ObjectId objId = new ObjectId(id, systemID);
+
+		if ( this.dbMockup.containsKey(objId) ){
+			boolean dirty = false;
+			ObjectBoundary updatedObject = this.dbMockup.get(objId); // original object
+
+			// if alias updated
+			if ( update.getAlias() != null ){
+				updatedObject.setAlias(update.getAlias());
+				dirty = true;
+			}
+
+			// if status updated
+			if ( update.getStatus() != null ){
+				updatedObject.setStatus(update.getStatus());
+				dirty = true;
+			}
+
+			// if location updated
+			if ( update.getLocation() != null ){
+				Location newLoc = update.getLocation();
+				if ( newLoc.getLng() != null && newLoc.getLat() != null ){
+					updatedObject.setLocation(newLoc);
+					dirty = true;
+				}
+			}
+
+			// if active updated
+			if ( update.getActive() != null ) {
+				updatedObject.setActive(update.getActive());
+				dirty = true;
+			}
+
+			// if object details updated
+			if ( update.getObjectDetails() != null ){
+				// add or update all objectDetails entries
+				updatedObject.getObjectDetails().putAll(update.getObjectDetails());
+				dirty = true;
+			}
+
+			if (dirty){
+				// update
+				this.dbMockup.put(updatedObject.getObjectId(), updatedObject);
+			}
+
+		}else {
+			throw new RuntimeException("Couldn't find any object with specified IDs");
+		}
 	}
 }
 

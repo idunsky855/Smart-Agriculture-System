@@ -1,13 +1,6 @@
 package sas.boundary;
 
-import sas.boundary.CreatedBy;
-import sas.boundary.Location;
-import sas.boundary.ObjectId;
-import sas.utils.Constants;
-
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -17,7 +10,7 @@ public class ObjectBoundary {
 	private String alias;
 	private String status;
 	private Location location;
-	private boolean active;
+	private Boolean active;
 	private Date creationTimestamp;
 	private CreatedBy createdBy;
 	private Map<String, Object> objectDetails;
@@ -26,7 +19,7 @@ public class ObjectBoundary {
 	}
 
 	// for tests
-	public ObjectBoundary(ObjectId objectId, String type, String alias, String status, Location location, boolean active, Date creationTimestamp, CreatedBy createdBy, Map<String, Object> objectDetails) {
+	public ObjectBoundary(ObjectId objectId, String type, String alias, String status, Location location, Boolean active, Date creationTimestamp, CreatedBy createdBy, Map<String, Object> objectDetails) {
 		this.objectId = objectId;
 		this.type = type;
 		this.alias = alias;
@@ -62,11 +55,11 @@ public class ObjectBoundary {
 		this.status = status;
 	}
 
-	public boolean isActive() {
+	public Boolean getActive() {
 		return active;
 	}
 
-	public void setActive(boolean active) {
+	public void setActive(Boolean active) {
 		this.active = active;
 	}
 
@@ -110,6 +103,7 @@ public class ObjectBoundary {
 	public void setCreatedBy(CreatedBy cb){
 		this.createdBy = cb;
 	}
+
 
 	@Override
 	public String toString() {
