@@ -1,20 +1,33 @@
 package sas.boundary;
 
 public class Location {
-	private float lat;
-	private float lng;
-	public float getLat() {
-		return lat;
+	private Double lat;
+	private Double lng;
+
+	public Location(){
 	}
-	public void setLat(float lat) {
+
+	public Location(Double lat, Double lng){
 		this.lat = lat;
-	}
-	public float getLng() {
-		return lng;
-	}
-	public void setLng(float lng) {
 		this.lng = lng;
 	}
+
+	public Double getLat() {
+		return lat;
+	}
+
+	public void setLat(Double lat) {
+		this.lat = lat;
+	}
+
+	public Double getLng() {
+		return lng;
+	}
+
+	public void setLng(Double lng) {
+		this.lng = lng;
+	}
+
 	@Override
 	public String toString() {
 		return "Location [lat=" + lat + ", lng=" + lng + "]";

@@ -22,8 +22,20 @@ public class ObjectBoundary {
 	private CreatedBy createdBy;
 	private Map<String, Object> objectDetails;
 	
-	
 	public ObjectBoundary() {	
+	}
+
+	// for tests
+	public ObjectBoundary(ObjectId objectId, String type, String alias, String status, Location location, boolean active, Date creationTimestamp, CreatedBy createdBy, Map<String, Object> objectDetails) {
+		this.objectId = objectId;
+		this.type = type;
+		this.alias = alias;
+		this.status = status;
+		this.location = location;
+		this.active = active;
+		this.creationTimestamp = creationTimestamp;
+		this.createdBy = createdBy;
+		this.objectDetails = objectDetails;
 	}
 
 	public String getType() {
@@ -116,6 +128,5 @@ public class ObjectBoundary {
 		sb.append(" ]");
 		return  sb.toString();
 	}
-
 }
 

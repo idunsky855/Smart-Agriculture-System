@@ -4,8 +4,10 @@ import sas.utils.Constants;
 
 public class User {
 	private String userId;
-	private String systemId = Constants.SYSTEM_ID;
-	
+	private String email;
+
+	public User(){
+	}
 	
 	public String getUserId() {
 		return userId;
@@ -15,17 +17,17 @@ public class User {
 		this.userId = userId;
 	}
 
-	public String getSystemId() {
-		return systemId;
+	public void setEmail(String emailAddress){
+		this.email = emailAddress;
 	}
 
-	public void setSystemId(String systemId) {
-		this.systemId = systemId;
+	public String getEmail(){
+		return this.email;
 	}
 
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", systemId=" + systemId + "]";
+		return "User [userId=" + userId + ", email=" + email + "]";
 	}
 	
 	

@@ -1,25 +1,29 @@
 package sas.controller;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.time.Clock;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
 
+import ch.qos.logback.core.joran.spi.ConsoleTarget;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import sas.boundary.ObjectBoundary;
+import sas.boundary.*;
 
 @RestController
-@RequestMapping(path = {"/aii"})
+@RequestMapping(path = {"/aii/objects"})
 public class ObjectController {
-	
-private String springApplicationName;
-	
+	private String springApplicationName;
+	private Map<ObjectId, ObjectBoundary> dbMockup;
+	private AtomicLong nextID;
+
+	public ObjectController(){
+		this.dbMockup = Collections.synchronizedMap(new HashMap<>());
+		this.nextID = new AtomicLong(100L);
+	}
+
 	@Value("${spring.application.name:defaultAppName}")
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
@@ -27,59 +31,91 @@ private String springApplicationName;
 	}
 	
 	@GetMapping(
+			path = {"/{systemID}/{id}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ObjectBoundary createGenericObject() {
-		ObjectBoundary rv = new ObjectBoundary();
-		
-		// add logic and mapping 
+	public ObjectBoundary getObjectById(
+			@PathVariable("systemID") String systemID,
+			@PathVariable("id") String id) {
+
+		ObjectId objId = new ObjectId();
+		objId.setId(id);
+		objId.setSystemId(systemID);
+
+		ObjectBoundary rv = this.dbMockup.get(objId);
+		if (rv == null){
+			throw new RuntimeException("Could not find Object by ID: " + objId);
+		}
 
 		System.err.println("*** " + rv);
-		
 		return rv;
 	}
 
 	@GetMapping(
-		path = {"/{name}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ObjectBoundary createPersonalizedMessage(
-			@PathVariable("name") String name) {
-		ObjectBoundary rv = new ObjectBoundary();
-		if (name == null || name.trim().isEmpty()) {
-			name = "Anonymous";
-		}
+	public ObjectBoundary[] getAllObjects() {
 
-		System.err.println("*** " + rv);
-		
+		ObjectBoundary[] rv = this.dbMockup
+				.values()
+				.toArray(new ObjectBoundary[0]);
+
+		// for tests
+		System.err.println("*** db length: " + this.dbMockup.size() + " , returned array size: " + rv.length);
+		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
 	
-	@GetMapping(
-		path = {"/many/{count}"},
-		produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ObjectBoundary[] createManyMessages(
-			@PathVariable("count") int count) {
-		if (count < 1 || count > 10) {
-			throw new RuntimeException("Requested count must be between 1 and 10");
+	@PostMapping(
+			consumes = {MediaType.APPLICATION_JSON_VALUE},
+			produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ObjectBoundary insertObjectToDb(
+			@RequestBody ObjectBoundary newObj){
+
+		// create and set a new objectID for the new object
+		ObjectId objectId = new ObjectId();
+		objectId.setSystemId(this.springApplicationName);
+		objectId.setId("" + this.nextID.getAndIncrement());
+		newObj.setObjectId(objectId);
+
+		// validate type
+		if ( newObj.getType() == null ){
+			throw new RuntimeException("New objects must contain a type value!");
 		}
-		
-		List<ObjectBoundary> list = 
-		  IntStream.range(0, count)
-			.map(i->i+1)
-			.mapToObj(i->{
-				ObjectBoundary rv = new ObjectBoundary("Message #" + i);
-				
-				return rv;
-			})
-			.toList();
-		
-		System.err.println("*** " + list);
-		
-		return list.toArray(new ObjectBoundary[0]);
+
+		// validate status
+		if ( newObj.getStatus() == null ){
+			newObj.setStatus("UNAVAILABLE");
+		}
+
+		// validate location and set to default if invalid
+		Location objLocation = newObj.getLocation();
+		if ( objLocation == null || objLocation.getLat() == null || objLocation.getLng() == null ){
+
+			// if no valid location was given - set the location to Google's Headquarters - Mountain View, California
+			newObj.setLocation(new Location(37.4220,-122.0841));
+		}
+
+		// validate created by
+		CreatedBy cb = newObj.getCreatedBy();
+		User user = cb.getUserId();
+		if ( cb == null || user == null || user.getUserId() == null || user.getEmail() == null ){
+			throw new RuntimeException("New object must contain a valid CreatedBy field - with a valid userID!");
+		}
+
+		// set creation timestamp - now
+		newObj.setCreationTimestamp(new Date());
+
+		if ( newObj.getObjectDetails() == null ){
+			newObj.setObjectDetails(new HashMap<>());
+		}
+
+		// INSERT newObj to db
+		this.dbMockup.put(
+				newObj.getObjectId(),
+				newObj
+		);
+
+		return newObj;
 	}
-
-
-	
-
 }
 
 
