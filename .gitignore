@@ -32,7 +32,6 @@ Thumbs.db
 .classpath
 .project
 .settings/
-bin/
 
 ## NetBeans
 /nbproject/private/
@@ -75,3 +74,6 @@ Thumbs.db
 *.jar
 *.war
 *.ear
+
+# Leave binaries out
+./bin/

@@ -1,38 +1,32 @@
 package sas.boundary;
 
 public class UserId {
-	private String systemID;
-	private String email;
-	
-	public UserId() {
+    private String systemId;
+    private String email;
 
-	}
-	
-	public UserId(String systemID, String email) {
-		this.systemID = systemID;
-		this.email = email;
-	}
-	
-	public String getSystemID() {
-		return systemID;
+	public UserId(){
 	}
 
-	public void setSystemID(String systemID) {
-		this.systemID = systemID;
+	public void setEmail(String emailAddress){
+		this.email = emailAddress;
 	}
 
-	public String getEmail() {
-		return email;
+	public String getEmail(){
+		return this.email;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
+    }
 
 	@Override
 	public String toString() {
-		return "UserId [systemID=" + systemID + ", email=" + email + "]";
+		return "User [email=" + email + " systemId=" + systemId + "]";
 	}
-	
-	
+
+
 }

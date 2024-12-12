@@ -35,8 +35,11 @@ public class UserController {
 	public UserBoundary validateLoginAndGetUserDetails(@PathVariable("systemID") String systemID,
 			@PathVariable("userEmail") String userEmail) {
 
-		if (systemID == null || systemID.trim().isEmpty() || userEmail == null || userEmail.trim().isEmpty())
-			throw new RuntimeException("Invalid input - either systemID or user email are not initialized");
+		if (systemID == null || systemID.trim().isEmpty())
+			throw new RuntimeException("Invalid input - systemID is not initialized");
+
+		if(userEmail == null || userEmail.trim().isEmpty())
+			throw new RuntimeException("Invalid input - user email is not initialized");
 
 		UserBoundary rv = new UserBoundary();
 		String key = systemID + "@@" + userEmail;
@@ -56,8 +59,17 @@ public class UserController {
 			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public UserBoundary insertToDb(@RequestBody NewUserBoundary newUser) {
 
-		if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty() || newUser.getRole() == null)
-			throw new RuntimeException("Invalid input - either email or role are not initialized");
+		if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty())
+			throw new RuntimeException("Invalid input - email is not initialized");
+		
+		if(newUser.getRole() == null)
+			throw new RuntimeException("Invalid input - role is not initialized");
+		
+		if(newUser.getUsername() == null || newUser.getUsername().trim().isEmpty())
+			throw new RuntimeException("Invalid input - username is not initialized");
+		
+		if(newUser.getAvatar()!= null && newUser.getAvatar().length() > 0 && newUser.getAvatar().trim().isEmpty())
+			throw new RuntimeException("Invalid input - avatar cannot be all blank spaces");
 
 		UserBoundary rv = new UserBoundary();
 		rv.setUsername(newUser.getUsername());
@@ -65,7 +77,11 @@ public class UserController {
 		rv.setAvatar(newUser.getAvatar());
 		rv.setUserId(new UserId(springApplicationName, newUser.getEmail()));
 
-		this.usersDB.put(springApplicationName + "@@" + rv.getUserId().getEmail(), rv);
+		String key = springApplicationName + "@@" + rv.getUserId().getEmail();
+		if(this.usersDB.containsKey(key))
+			throw new RuntimeException("A user with the same email is already exist in the system.");
+
+		this.usersDB.put(key, rv);
 		return rv;
 	}
 
@@ -76,18 +92,17 @@ public class UserController {
 			@PathVariable("userEmail") String userEmail,
 			@RequestBody UserBoundary update) {
 		
-		if (systemID == null || systemID.trim().isEmpty() || userEmail == null || userEmail.trim().isEmpty())
-			throw new RuntimeException("Invalid input - either systemID or user email are not initialized");
-		
+		if (systemID == null || systemID.trim().isEmpty())
+			throw new RuntimeException("Invalid input - systemID is not initialized");
+
+		if(userEmail == null || userEmail.trim().isEmpty())
+			throw new RuntimeException("Invalid input - user email is not initialized");
+
 		String key = systemID + "@@" + userEmail;
 		if (this.usersDB.containsKey(key)) {
 			// update usersDB
 			UserBoundary updatedUser = this.usersDB.get(key);
 			boolean dirty = false;
-
-			if (update.getUserId() != null) {
-				// do nothing
-			}
 
 			if (update.getRole() != null) {
 				updatedUser.setRole(update.getRole());
@@ -95,11 +110,17 @@ public class UserController {
 			}
 
 			if (update.getUsername() != null) {
+				if(update.getUsername().trim().isEmpty())
+					throw new RuntimeException("Invalid input - username cannot be all blank spaces");
+				
 				updatedUser.setUsername(update.getUsername());
 				dirty = true;
 			}
 
 			if (update.getAvatar() != null) {
+				if(update.getAvatar().length() > 0 && update.getAvatar().trim().isEmpty())
+					throw new RuntimeException("Invalid input - avatar cannot be all blank spaces");
+				
 				updatedUser.setAvatar(update.getAvatar());
 				dirty = true;
 			}
