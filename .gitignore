@@ -68,7 +68,7 @@ Thumbs.db
 *.bak
 *.swp
 *.swo
-.~lock.
+*.~lock.*
 
 # Application files
 *.jar
@@ -77,3 +77,4 @@ Thumbs.db
 
 # Leave binaries out
 ./bin/
+

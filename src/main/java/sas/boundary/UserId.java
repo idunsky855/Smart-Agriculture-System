@@ -1,8 +1,8 @@
 package sas.boundary;
 
 public class UserId {
-	private String systemId;
-	private String email;
+    private String systemId;
+    private String email;
 
 	public UserId(){
 	}
@@ -15,13 +15,13 @@ public class UserId {
 		return this.email;
 	}
 
-	public String getSystemId() {
-		return systemId;
-	}
+    public String getSystemId() {
+        return systemId;
+    }
 
-	public void setSystemId(String systemId) {
-		this.systemId = systemId;
-	}
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
+    }
 
 	@Override
 	public String toString() {
@@ -30,3 +30,9 @@ public class UserId {
 
 
 }
+
+
+
+
+
+

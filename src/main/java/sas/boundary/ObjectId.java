@@ -3,8 +3,8 @@ package sas.boundary;
 import java.util.Objects;
 
 public class ObjectId {
-	private String id;
 	private String systemId;
+	private String id;
 
 
 	public ObjectId() {
@@ -19,21 +19,17 @@ public class ObjectId {
 		return id;
 	}
 
-
 	public void setId(String id) {
 		this.id = id;
 	}
-
 
 	public String getSystemId() {
 		return systemId;
 	}
 
-
 	public void setSystemId(String systemId) {
 		this.systemId = systemId;
 	}
-
 
 	@Override
 	public String toString() {
@@ -51,7 +47,6 @@ public class ObjectId {
 	public int hashCode() {
 		return Objects.hash(id, systemId);
 	}
-
 
 
 }

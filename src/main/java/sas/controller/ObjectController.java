@@ -14,11 +14,11 @@ import sas.boundary.*;
 public class ObjectController {
 	@Value("${spring.application.name:defaultAppName}")
 	private String springApplicationName;
-	private Map<ObjectId, ObjectBoundary> objectsDbMockup;
+	private Map<ObjectId, ObjectBoundary> objectsDb;
 	private AtomicLong nextID;
 
 	public ObjectController(){
-		this.objectsDbMockup = Collections.synchronizedMap(new HashMap<>());
+		this.objectsDb = Collections.synchronizedMap(new HashMap<>());
 		this.nextID = new AtomicLong(1L);
 	}
 	
@@ -38,7 +38,7 @@ public class ObjectController {
 		objId.setId(id);
 		objId.setSystemId(systemID);
 
-		ObjectBoundary rv = this.objectsDbMockup.get(objId);
+		ObjectBoundary rv = this.objectsDb.get(objId);
 		if (rv == null){
 			throw new RuntimeException("Could not find Object by ID: " + objId);
 		}
@@ -52,12 +52,12 @@ public class ObjectController {
 		produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary[] getAllObjects() {
 
-		ObjectBoundary[] rv = this.objectsDbMockup
+		ObjectBoundary[] rv = this.objectsDb
 				.values()
 				.toArray(new ObjectBoundary[0]);
 
 		// for tests
-		System.err.println("*** db length: " + this.objectsDbMockup.size() + " , returned array size: " + rv.length);
+		System.err.println("*** db length: " + this.objectsDb.size() + " , returned array size: " + rv.length);
 		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
@@ -115,7 +115,7 @@ public class ObjectController {
 		}
 
 		// INSERT newObj to db
-		this.objectsDbMockup.put(
+		this.objectsDb.put(
 				newObj.getObjectId(),
 				newObj
 		);
@@ -140,9 +140,9 @@ public class ObjectController {
 
 		ObjectId objId = new ObjectId(id, systemID);
 
-		if ( this.objectsDbMockup.containsKey(objId) ){
+		if ( this.objectsDb.containsKey(objId) ){
 			boolean dirty = false;
-			ObjectBoundary updatedObject = this.objectsDbMockup.get(objId); // original object
+			ObjectBoundary updatedObject = this.objectsDb.get(objId); // original object
 
 			// if alias updated
 			if ( update.getAlias() != null ){
@@ -180,7 +180,7 @@ public class ObjectController {
 
 			if (dirty){
 				// update
-				this.objectsDbMockup.put(updatedObject.getObjectId(), updatedObject);
+				this.objectsDb.put(updatedObject.getObjectId(), updatedObject);
 			}
 
 		}else {
@@ -192,7 +192,7 @@ public class ObjectController {
 			path = {"/aii/admin/objects"})
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteAllObjects(){
-		this.objectsDbMockup.clear();
+		this.objectsDb.clear();
 	}
 }
 
