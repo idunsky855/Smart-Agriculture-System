@@ -21,7 +21,7 @@ public class ObjectController {
 		this.objectsDb = Collections.synchronizedMap(new HashMap<>());
 		this.nextID = new AtomicLong(1L);
 	}
-	
+
 	@GetMapping(
 			path = {"/aii/objects/{systemID}/{id}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -61,7 +61,7 @@ public class ObjectController {
 		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
-	
+
 	@PostMapping(
 			path = {"/aii/objects"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE},
@@ -127,7 +127,6 @@ public class ObjectController {
 	@PutMapping(
 			path = {"/aii/objects/{systemID}/{id}"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE})
-	@ResponseStatus(HttpStatus.CREATED)
 	public void updateObject(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id,
