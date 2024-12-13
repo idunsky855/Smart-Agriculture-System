@@ -7,6 +7,11 @@ public class UserId {
 	public UserId(){
 	}
 
+	public UserId(String systemId, String email){
+		this.systemId = systemId;
+		this.email = email;
+	}
+
 	public void setEmail(String emailAddress){
 		this.email = emailAddress;
 	}
