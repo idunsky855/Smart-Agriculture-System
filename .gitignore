@@ -75,3 +75,6 @@ Thumbs.db
 *.war
 *.ear
 
+# Leave binaries out
+./bin/
+
