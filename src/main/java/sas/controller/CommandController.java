@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Date;
 
 @RestController
 public class CommandController {
@@ -45,6 +46,32 @@ public class CommandController {
     @PostMapping("/aii/commands")
     @ResponseStatus(HttpStatus.CREATED)
     public CommandBoundary addNewCommand(@RequestBody CommandBoundary newCommand) {
+        // Input validations:
+        if (newCommand == null) {
+            throw new RuntimeException("ERROR - Command is null");
+        }
+
+        if(newCommand.getCommand() == null) {
+            throw new RuntimeException("ERROR - Command is null");
+        }
+
+        if (newCommand.getTargetObject() == null) {
+            throw new RuntimeException("ERROR - TargetObject is null");
+        }
+
+        if (newCommand.getTargetObject().getObjectId() == null) {
+            throw new RuntimeException("ERROR - ObjectId is null");
+        }
+
+        if (newCommand.getInvokedBy() == null) {
+            throw new RuntimeException("ERROR - InvokedBy is null");
+        }
+
+        if (newCommand.getInvokedBy().getUserId() == null) {
+            throw new RuntimeException("ERROR - UserId is null");
+        }
+
+        // Passed validations:
         // Generate a unique commandId
         CommandId generatedCommandId = new CommandId();
 
@@ -62,8 +89,8 @@ public class CommandController {
         ObjectId generatedObjectId = new ObjectId();
 
         // Set the systemID and id in the ObjectId object
-        generatedObjectId.setSystemId(applicationName);
-        generatedObjectId.setId(generatedCommandId.getId());
+        generatedObjectId.setSystemId(newCommand.getTargetObject().getObjectId().getSystemId());
+        generatedObjectId.setId(newCommand.getTargetObject().getObjectId().getId());
 
         // Set the ObjectId in the TargetObject
         generatedTargetObject.setObjectId(generatedObjectId);
@@ -90,7 +117,7 @@ public class CommandController {
         newCommand.setInvokedBy(generatedInvokedBy);
 
         // Set the timestamp for this time no matter what the input is:
-        newCommand.setInvocationTimestamp(new java.util.Date().toString());
+        newCommand.setInvocationTimestamp(new Date());
 
         // Use the commandId as the key in the map
         String commandIdKey = generatedCommandId.getSystemID() + "@@" + generatedCommandId.getId();
