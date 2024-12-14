@@ -2,13 +2,14 @@ package sas.boundary;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
 
 public class CommandBoundary {
 
     private CommandId commandId;
     private String command;
     private TargetObject targetObject;
-    private String invocationTimestamp;
+    private Date invocationTimestamp;
     private InvokedBy invokedBy;
     private Map<String, Object> commandAttributes;
 
@@ -41,11 +42,11 @@ public class CommandBoundary {
         this.targetObject = targetObject;
     }
 
-    public String getInvocationTimestamp() {
+    public Date getInvocationTimestamp() {
         return invocationTimestamp;
     }
 
-    public void setInvocationTimestamp(String invocationTimestamp) {
+    public void setInvocationTimestamp(Date invocationTimestamp) {
         this.invocationTimestamp = invocationTimestamp;
     }
 
@@ -71,7 +72,7 @@ public class CommandBoundary {
         return "CommandBoundary: {" + commandId
                 + command + '\''
                 + targetObject
-                + invocationTimestamp + '\''
+                + invocationTimestamp.toString() + '\''
                 + invokedBy
                 + commandAttributes +
                 '}';
