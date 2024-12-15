@@ -1,4 +1,4 @@
-package sas.boundary;
+package aii.logic;
 
 import java.util.Objects;
 

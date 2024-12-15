@@ -1,4 +1,4 @@
-package sas.boundary;
+package aii.logic;
 
 public class TargetObject {
     private ObjectId objectId;

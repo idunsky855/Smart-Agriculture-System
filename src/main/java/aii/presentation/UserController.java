@@ -1,4 +1,4 @@
-package sas.controller;
+package aii.presentation;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import sas.boundary.NewUserBoundary;
-import sas.boundary.UserBoundary;
-import sas.boundary.UserId;
+import aii.logic.NewUserBoundary;
+import aii.logic.UserBoundary;
+import aii.logic.UserId;
 
 @RestController
 @RequestMapping(path = { "/aii" })
