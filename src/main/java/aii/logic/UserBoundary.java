@@ -1,8 +1,8 @@
-package sas.boundary;
+package aii.logic;
 
 public class UserBoundary {
 	private UserId userId;
-	private RoleEnum role;
+	private UserRole role;
 	private String username;
 	private String avatar;
 
@@ -10,18 +10,18 @@ public class UserBoundary {
 
 	}
 
-	public UserBoundary(String systemID, String email, RoleEnum role, String username, String avatar) {
+	public UserBoundary(String systemID, String email, UserRole role, String username, String avatar) {
 		userId = new UserId(systemID, email);
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
 	}
 
-	public RoleEnum getRole() {
+	public UserRole getRole() {
 		return role;
 	}
 
-	public void setRole(RoleEnum role) {
+	public void setRole(UserRole role) {
 		this.role = role;
 	}
 

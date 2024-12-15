@@ -1,4 +1,4 @@
-package sas.controller;
+package aii.presentation;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import sas.boundary.CommandBoundary;
-import sas.boundary.CommandId;
-import sas.boundary.TargetObject;
-import sas.boundary.ObjectId;
-import sas.boundary.InvokedBy;
-import sas.boundary.UserId;
+import aii.logic.CommandBoundary;
+import aii.logic.CommandId;
+import aii.logic.TargetObject;
+import aii.logic.ObjectId;
+import aii.logic.InvokedBy;
+import aii.logic.UserId;
 
 import java.util.Collections;
 import java.util.HashMap;
