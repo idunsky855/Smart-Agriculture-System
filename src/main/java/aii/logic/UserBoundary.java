@@ -1,5 +1,7 @@
 package aii.logic;
 
+import aii.data.UserRole;
+
 public class UserBoundary {
 	private UserId userId;
 	private UserRole role;
