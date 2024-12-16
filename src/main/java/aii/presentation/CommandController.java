@@ -25,13 +25,24 @@ import java.util.Date;
 @RestController
 public class CommandController {
 
-    @Value("${spring.application.name}")
     private String applicationName;
 
     // Thread-safe in-memory map of CommandBoundary objects
     private final Map<String, CommandBoundary> commandsDB = Collections.synchronizedMap(new HashMap<>());
 
     private static final AtomicLong commandIdCounter = new AtomicLong(1); // Initialize with 1
+
+    // Setter for the applicationName
+    @Value("${spring.application.name:defaultAppName}")
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+		System.err.println("********" + this.applicationName);
+    }
+
+    // Getter:
+    public String getApplicationName() {
+        return this.applicationName;
+    }
 
     // GET endpoint for fetching all commands as a HashMap
     @GetMapping("/aii/admin/commands")
@@ -45,7 +56,7 @@ public class CommandController {
     // POST endpoint for creating a new command
     @PostMapping("/aii/commands")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommandBoundary addNewCommand(@RequestBody CommandBoundary newCommand) {
+    public CommandBoundary[] addNewCommand(@RequestBody CommandBoundary newCommand) {
         // Input validations:
         if (newCommand == null) {
             throw new RuntimeException("ERROR - Command is null");
@@ -76,7 +87,7 @@ public class CommandController {
         CommandId generatedCommandId = new CommandId();
 
         // Read the systemID from the properties file in src/resources/application.properties:
-        generatedCommandId.setSystemID(applicationName);
+        generatedCommandId.setSystemID(getApplicationName());
         generatedCommandId.setId(String.valueOf(commandIdCounter.getAndIncrement()));
 
         // Set the generated commandId in the new command
@@ -89,7 +100,7 @@ public class CommandController {
         ObjectId generatedObjectId = new ObjectId();
 
         // Set the systemID and id in the ObjectId object
-        generatedObjectId.setSystemId(newCommand.getTargetObject().getObjectId().getSystemId());
+        generatedObjectId.setSystemId(newCommand.getTargetObject().getObjectId().getSystemID());
         generatedObjectId.setId(newCommand.getTargetObject().getObjectId().getId());
 
         // Set the ObjectId in the TargetObject
@@ -105,7 +116,7 @@ public class CommandController {
         UserId generatedUserId = new UserId();
 
         // Set the systemID
-        generatedUserId.setSystemID(applicationName);
+        generatedUserId.setSystemID(getApplicationName());
 
         // Copy the email from the input command
         generatedUserId.setEmail(newCommand.getInvokedBy().getUserId().getEmail());
@@ -125,8 +136,9 @@ public class CommandController {
 
         System.out.println("DEBUG - New command added: " + newCommand.toString());
 
-        // Return the newly added command
-        return newCommand;
+        // Return an array of the new command:
+        return new CommandBoundary[] {newCommand};
+
     }
 
     // DELETE all commands
