@@ -109,7 +109,7 @@ public class ObjectController {
 		// validate created by
 		CreatedBy cb = newObj.getCreatedBy();
 		UserId user = cb.getUserId();
-		if ( cb == null || user == null || user.getSystemId() == null || user.getEmail() == null ){
+		if ( cb == null || user == null || user.getSystemID() == null || user.getEmail() == null ){
 			throw new RuntimeException("New object must contain a valid CreatedBy field - with a valid userID!");
 		}
 

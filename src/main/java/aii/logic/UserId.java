@@ -1,14 +1,14 @@
 package aii.logic;
 
 public class UserId {
-    private String systemId;
+    private String systemID;
     private String email;
 
 	public UserId(){
 	}
 
-	public UserId(String systemId, String email){
-		this.systemId = systemId;
+	public UserId(String systemID, String email){
+		this.systemID = systemID;
 		this.email = email;
 	}
 
@@ -20,17 +20,17 @@ public class UserId {
 		return this.email;
 	}
 
-    public String getSystemId() {
-        return systemId;
+    public String getSystemID() {
+        return systemID;
     }
 
-    public void setSystemId(String systemId) {
-        this.systemId = systemId;
+    public void setSystemID(String systemID) {
+        this.systemID = systemID;
     }
 
 	@Override
 	public String toString() {
-		return "User [email=" + email + " systemId=" + systemId + "]";
+		return "User [email=" + email + " systemID=" + systemID + "]";
 	}
 
 

@@ -105,7 +105,7 @@ public class CommandController {
         UserId generatedUserId = new UserId();
 
         // Set the systemID
-        generatedUserId.setSystemId(applicationName);
+        generatedUserId.setSystemID(applicationName);
 
         // Copy the email from the input command
         generatedUserId.setEmail(newCommand.getInvokedBy().getUserId().getEmail());
