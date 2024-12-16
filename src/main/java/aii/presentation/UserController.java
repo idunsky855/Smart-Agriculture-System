@@ -23,7 +23,6 @@ import aii.logic.UserId;
 @RestController
 @RequestMapping(path = { "/aii" })
 public class UserController {
-	@Value("${spring.application.name:defaultAppName}")
 	private String springApplicationName;
 	private Map<String, UserBoundary> usersDB;
 
@@ -31,7 +30,12 @@ public class UserController {
 		this.usersDB = new ConcurrentHashMap<>();
 	}
 
-
+	@Value("${spring.application.name:defaultAppName}")
+	public void setSpringApplicationName(String springApplicationName) {
+		this.springApplicationName = springApplicationName;
+		System.err.println("********" + this.springApplicationName);
+	}
+	
 	@GetMapping(path = { "/users/login/{systemID}/{userEmail}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public UserBoundary validateLoginAndGetUserDetails(@PathVariable("systemID") String systemID,
 			@PathVariable("userEmail") String userEmail) {
