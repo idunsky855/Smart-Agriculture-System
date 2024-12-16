@@ -1,5 +1,6 @@
 package aii.presentation;
 
+import java.security.KeyStore.Entry;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -146,6 +147,12 @@ public class ObjectController {
 		if ( this.objectsDb.containsKey(objId) ){
 			boolean dirty = false;
 			ObjectBoundary updatedObject = this.objectsDb.get(objId); // original object
+			
+			// if type updated
+			if (update.getType() != null && !update.getType().isBlank() ) {
+				updatedObject.setType(update.getType());
+				dirty = true;
+			}
 
 			// if alias updated
 			if ( update.getAlias() != null ){
