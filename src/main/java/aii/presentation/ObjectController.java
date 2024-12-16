@@ -12,7 +12,6 @@ import aii.logic.*;
 
 @RestController
 public class ObjectController {
-	@Value("${spring.application.name:defaultAppName}")
 	private String springApplicationName;
 	private Map<ObjectId, ObjectBoundary> objectsDb;
 	private AtomicLong nextID;
@@ -22,6 +21,11 @@ public class ObjectController {
 		this.nextID = new AtomicLong(1L);
 	}
 
+	@Value("${spring.application.name:defaultAppName}")
+	public void setSpringApplicationName(String springApplicationName) {
+		this.springApplicationName = springApplicationName;
+		System.err.println("********" + this.springApplicationName);
+	}
 	@GetMapping(
 			path = {"/aii/objects/{systemID}/{id}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
