@@ -40,7 +40,7 @@ public class ObjectController {
 
 		ObjectId objId = new ObjectId();
 		objId.setId(id);
-		objId.setSystemId(systemID);
+		objId.setSystemID(systemID);
 
 		ObjectBoundary rv = this.objectsDb.get(objId);
 		if (rv == null){
@@ -76,7 +76,7 @@ public class ObjectController {
 
 		// create and set a new objectID for the new object
 		ObjectId objectId = new ObjectId();
-		objectId.setSystemId(this.springApplicationName);
+		objectId.setSystemID(this.springApplicationName);
 		objectId.setId("" + this.nextID.getAndIncrement());
 		newObj.setObjectId(objectId);
 
