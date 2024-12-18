@@ -27,13 +27,13 @@ public class ObjectId {
 		return systemID;
 	}
 
-	public void setSystemId(String systemID) {
+	public void setSystemID(String systemID) {
 		this.systemID = systemID;
 	}
 
 	@Override
 	public String toString() {
-		return "ObjectId [id=" + id + ", systemId=" + systemID + "]";
+		return "ObjectId [id=" + id + ", systemID=" + systemID + "]";
 	}
 
 	@Override
