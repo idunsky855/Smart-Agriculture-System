@@ -100,7 +100,7 @@ public class CommandController {
         ObjectId generatedObjectId = new ObjectId();
 
         // Set the systemID and id in the ObjectId object
-        generatedObjectId.setSystemId(newCommand.getTargetObject().getObjectId().getSystemID());
+        generatedObjectId.setSystemID(newCommand.getTargetObject().getObjectId().getSystemID());
         generatedObjectId.setId(newCommand.getTargetObject().getObjectId().getId());
 
         // Set the ObjectId in the TargetObject
