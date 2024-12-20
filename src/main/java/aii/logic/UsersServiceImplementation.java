@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import aii.dal.UsersCrud;
 import aii.data.UserEntity;
+import aii.logic.EmailValidator;
 
 import java.util.List;
 
@@ -18,10 +19,12 @@ public class UsersServiceImplementation implements UsersService {
 
 	private UsersCrud users;
 	private String springApplicationName;
+	private EmailValidator emailValidator;
 	
 
 	public UsersServiceImplementation(UsersCrud users) {
 		this.users = users;
+		emailValidator = new EmailValidator();
 	}
 
 	@Value("${spring.application.name:defaultAppName}")
@@ -33,6 +36,10 @@ public class UsersServiceImplementation implements UsersService {
 	@Override
 	@Transactional
 	public UserBoundary createUser(UserBoundary user) {
+	
+		if(!emailValidator.isEmailValid(user.getUserId().getEmail()))
+			throw new InvalidInputException("Invalid input - invalid email");
+		
 		if (user.getUsername() == null || user.getUsername().trim().isEmpty())
 			throw new InvalidInputException("Invalid input - username is not initialized");
 
@@ -42,7 +49,7 @@ public class UsersServiceImplementation implements UsersService {
 		user.setUserId(new UserId(springApplicationName, user.getUserId().getEmail()));
 		
 		if (!login(user.getUserId().getSystemID(),user.getUserId().getEmail()).isEmpty())
-			throw new RuntimeException("A user with the same email is already exist in the system.");
+			throw new UserAlreadyExistsException("A user with the same email is already exists in the system");
 
 		return new UserBoundary(this.users.save(user.toEntity()));
 	}
@@ -50,11 +57,15 @@ public class UsersServiceImplementation implements UsersService {
 	@Override
 	@Transactional(readOnly = true)
 	public Optional<UserBoundary> login(String systemID, String userEmail) {
+		
 		if (systemID == null || systemID.trim().isEmpty())
 			throw new InvalidInputException("Invalid input - systemID is not initialized");
 
 		if (userEmail == null || userEmail.trim().isEmpty())
 			throw new InvalidInputException("Invalid input - user email is not initialized");
+		
+		if(!emailValidator.isEmailValid(userEmail))
+			throw new InvalidInputException("Invalid input - invalid email");
 		
 		return this.users.findById(systemID + "@@" + userEmail).map(UserBoundary::new);
 	}
@@ -62,15 +73,19 @@ public class UsersServiceImplementation implements UsersService {
 	@Override
 	@Transactional
 	public UserBoundary updateUser(String systemID, String userEmail, UserBoundary update) {
-		String key = systemID + "@@" + userEmail;
-		Optional<UserEntity> entityOp = this.users
-				.findById(key);
 		
 		if (systemID == null || systemID.trim().isEmpty())
 			throw new InvalidInputException("Invalid input - systemID is not initialized");
 
 		if (userEmail == null || userEmail.trim().isEmpty())
 			throw new InvalidInputException("Invalid input - user email is not initialized");
+		
+		if(!emailValidator.isEmailValid(userEmail))
+			throw new InvalidInputException("Invalid input - invalid email");
+		
+		String key = systemID + "@@" + userEmail;
+		Optional<UserEntity> entityOp = this.users
+				.findById(key);
 
 		if(!entityOp.isEmpty()) {
 			UserEntity updatedUser = entityOp.get();

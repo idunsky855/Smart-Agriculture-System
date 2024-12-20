@@ -22,7 +22,6 @@ public class UserBoundary {
 	
 	public UserBoundary (UserEntity entity) {
 		this();
-		
 		String systemID = entity.getUserId().split("@@")[0];
 		String email = entity.getUserId().split("@@")[1];
 		this.userId = new UserId(systemID, email);
