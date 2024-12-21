@@ -1,207 +1,89 @@
 package aii.presentation;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import aii.logic.*;
+import aii.logic.exceptions.ObjectNotFoundException;
 
 @RestController
 public class ObjectController {
-	private String springApplicationName;
-	private Map<ObjectId, ObjectBoundary> objectsDb;
-	private AtomicLong nextID;
+	private ObjectsService objects;
 
-	public ObjectController(){
-		this.objectsDb = Collections.synchronizedMap(new HashMap<>());
-		this.nextID = new AtomicLong(1L);
+	public ObjectController(ObjectsService objects){
+		this.objects = objects;
 	}
 
-	@Value("${spring.application.name:defaultAppName}")
-	public void setSpringApplicationName(String springApplicationName) {
-		this.springApplicationName = springApplicationName;
-		System.err.println("********" + this.springApplicationName);
-	}
 	@GetMapping(
-			path = {"/aii/objects/{systemID}/{id}"},
+			path = {"/aii/objects/{objectSystemID}/{objectId}/{userSystemID}/{userEmail}"},
 		produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary getObjectById(
-			@PathVariable("systemID") String systemID,
-			@PathVariable("id") String id) {
+			@PathVariable("objectSystemID") String objectSystemID,
+			@PathVariable("objectId") String objectId,
+			@PathVariable("userSystemID") String userSystemID,
+			@PathVariable("userEmail") String userEmail) {
 
-		// check if any of the ID's are either empty or only whitespace
-		if ( systemID.isBlank() || id.isBlank() ) {
-			throw new RuntimeException("systemID and id can't be blank");
-		}
-
-		ObjectId objId = new ObjectId();
-		objId.setId(id);
-		objId.setSystemID(systemID);
-
-		ObjectBoundary rv = this.objectsDb.get(objId);
-		if (rv == null){
-			throw new RuntimeException("Could not find Object by ID: " + objId);
-		}
-
-		System.err.println("*** " + rv);
-		return rv;
+		return this.objects.getSpecificObject(userSystemID,userEmail,objectSystemID,objectId)
+				.orElseThrow(() -> new ObjectNotFoundException("Couldn't find the object with object id - " + objectId));
 	}
 
 	@GetMapping(
-			path = {"/aii/objects"},
-		produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ObjectBoundary[] getAllObjects() {
+			path = {"/aii/objects/{userSystemID}/{userEmail}"},
+			produces = {MediaType.APPLICATION_JSON_VALUE})
+	public ObjectBoundary[] getAllObjects(
+		@PathVariable("userSystemID") String userSystemID,
+		@PathVariable("userEmail") String userEmail
+	) {
 
-		ObjectBoundary[] rv = this.objectsDb
-				.values()
-				.toArray(new ObjectBoundary[0]);
-
-		// for tests
-		System.err.println("*** db length: " + this.objectsDb.size() + " , returned array size: " + rv.length);
+		ObjectBoundary[] rv = this.objects.getAll(userSystemID, userEmail).toArray(new ObjectBoundary[0]);
 		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
 
+	
 	@PostMapping(
-			path = {"/aii/objects"},
+			path = {"/aii/objects/{userSystemID}/{userEmail}"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE},
 			produces = {MediaType.APPLICATION_JSON_VALUE})
 	@ResponseStatus(HttpStatus.CREATED)
 	public ObjectBoundary insertObjectToDb(
-			@RequestBody ObjectBoundary newObj){
+			@PathVariable("userSystemID") String userSystemID,
+			@PathVariable("userEmail") String userEmail,
+			@RequestBody ObjectBoundary object){
 
-		// create and set a new objectID for the new object
-		ObjectId objectId = new ObjectId();
-		objectId.setSystemID(this.springApplicationName);
-		objectId.setId("" + this.nextID.getAndIncrement());
-		newObj.setObjectId(objectId);
-
-		// validate type
-		if ( newObj.getType() == null ){
-			throw new RuntimeException("New objects must contain a type value!");
-		}
-
-		// validate status
-		if ( newObj.getStatus() == null ){
-			newObj.setStatus("UNAVAILABLE");
-		}
-
-		// validate location and set to default if invalid
-		Location objLocation = newObj.getLocation();
-		if ( objLocation == null || objLocation.getLat() == null || objLocation.getLng() == null ){
-			// if no valid location was given - set the location to Google's Headquarters - Mountain View, California
-			newObj.setLocation(new Location(37.4220,-122.0841));
-		}
-
-		// validate active
-		if ( newObj.getActive() == null ){
-			// default is active = false
-			newObj.setActive(false);
-		}
-
-		// set creation timestamp - now
-		newObj.setCreationTimestamp(new Date());
-
-		// validate created by
-		CreatedBy cb = newObj.getCreatedBy();
-		UserId user = cb.getUserId();
-		if ( cb == null || user == null || user.getSystemID() == null || user.getEmail() == null ){
-			throw new RuntimeException("New object must contain a valid CreatedBy field - with a valid userID!");
-		}
-
-		// validate if objectDetails exist or should be created
-		if ( newObj.getObjectDetails() == null ){
-			newObj.setObjectDetails(new HashMap<>());
-		}
-
-		// INSERT newObj to db
-		this.objectsDb.put(
-				newObj.getObjectId(),
-				newObj
-		);
-
-		return newObj;
+		return this.objects.create(userSystemID, userEmail, object);
 	}
 
 
 	@PutMapping(
-			path = {"/aii/objects/{systemID}/{id}"},
+			path = {"/aii/objects/{objectSystemID}/{objectId}/{userSystemID}/{userEmail}"},
 			consumes = {MediaType.APPLICATION_JSON_VALUE})
 	public void updateObject(
-			@PathVariable("systemID") String systemID,
-			@PathVariable("id") String id,
+			@PathVariable("objectSystemID") String objectSystemID,
+			@PathVariable("objectId") String objectId,
+			@PathVariable("userSystemID") String userSystemID,
+			@PathVariable("userEmail") String userEmail,
 			@RequestBody ObjectBoundary update){
 
-		// check if any of the ID's are either empty or only whitespace
-		if ( systemID.isBlank() || id.isBlank() ) {
-			throw new RuntimeException("systemID and id can't be blank");
-		}
-
-		ObjectId objId = new ObjectId(id, systemID);
-
-		if ( this.objectsDb.containsKey(objId) ){
-			boolean dirty = false;
-			ObjectBoundary updatedObject = this.objectsDb.get(objId); // original object
-			
-			// if type updated
-			if (update.getType() != null && !update.getType().isBlank() ) {
-				updatedObject.setType(update.getType());
-				dirty = true;
-			}
-
-			// if alias updated
-			if ( update.getAlias() != null ){
-				updatedObject.setAlias(update.getAlias());
-				dirty = true;
-			}
-
-			// if status updated
-			if ( update.getStatus() != null ){
-				updatedObject.setStatus(update.getStatus());
-				dirty = true;
-			}
-
-			// if location updated
-			if ( update.getLocation() != null ){
-				Location newLoc = update.getLocation();
-				if ( newLoc.getLng() != null && newLoc.getLat() != null ){
-					updatedObject.setLocation(newLoc);
-					dirty = true;
-				}
-			}
-
-			// if active updated
-			if ( update.getActive() != null ) {
-				updatedObject.setActive(update.getActive());
-				dirty = true;
-			}
-
-			// if object details updated
-			if ( update.getObjectDetails() != null ){
-				// add or update all objectDetails entries
-				updatedObject.getObjectDetails().putAll(update.getObjectDetails());
-				dirty = true;
-			}
-
-			if (dirty){
-				// update
-				this.objectsDb.put(updatedObject.getObjectId(), updatedObject);
-			}
-
-		}else {
-			throw new RuntimeException("Couldn't find any object with specified IDs");
-		}
+			this.objects.update(userSystemID, userEmail, objectSystemID, objectId, update);
 	}
 
 	@DeleteMapping(
-			path = {"/aii/admin/objects"})
+			path = {"/aii/admin/objects/{adminSystemID}/{adminEmail}"})
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteAllObjects(){
-		this.objectsDb.clear();
+	public void deleteAllObjects(
+		@PathVariable("adminSystemID") String adminSystemID,
+		@PathVariable("adminEmail") String adminEmail
+	){
+		try{
+			this.objects.deleteAllObjects(adminSystemID, adminEmail); 
+		}catch(Exception e){
+			System.err.println("[ERROR] - Something went wrong while trying to erase the objects Database.");
+			throw new RuntimeException("Something went wrong while trying to erase the objects Database");	
+		}
 	}
 }
 

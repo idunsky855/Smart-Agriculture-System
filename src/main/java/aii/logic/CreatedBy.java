@@ -3,6 +3,14 @@ package aii.logic;
 public class CreatedBy {
 	private UserId userId;
 	
+	public CreatedBy(){
+	}
+	public CreatedBy(UserId userId){
+		this.userId = userId;
+	}
+	public CreatedBy(String systemID,String userEmail){
+		this.userId = new UserId(systemID, userEmail);
+	}
 
 	public UserId getUserId() {
 		return userId;
