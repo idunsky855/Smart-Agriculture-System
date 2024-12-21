@@ -36,8 +36,17 @@ public class UsersServiceImplementation implements UsersService {
 	@Override
 	@Transactional
 	public UserBoundary createUser(UserBoundary user) {
+		
+		if (user == null || user.getUserId() == null)
+			throw new InvalidInputException("Invalid input - user is not initialized");
+		
+		if (user.getUserId().getEmail() == null || user.getUserId().getEmail().trim().isEmpty())
+			throw new InvalidInputException("Invalid input - email is not initialized");
+
+		if (user.getRole() == null)
+			throw new InvalidInputException("Invalid input - role is not initialized");
 	
-		if(!emailValidator.isEmailValid(user.getUserId().getEmail()))
+		if (!emailValidator.isEmailValid(user.getUserId().getEmail()))
 			throw new InvalidInputException("Invalid input - invalid email");
 		
 		if (user.getUsername() == null || user.getUsername().trim().isEmpty())
@@ -123,6 +132,9 @@ public class UsersServiceImplementation implements UsersService {
 	@Transactional
 	public void deleteAllUsers() {
 		this.users.deleteAll();
+		
+		if (this.users.findAll().size() != 0)
+			throw new RuntimeException("Error while deleting users list");
 	}
 
 }
