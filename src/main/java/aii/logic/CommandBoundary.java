@@ -1,6 +1,9 @@
 package aii.logic;
 
 import java.util.Map;
+
+import aii.data.CommandEntity;
+
 import java.util.HashMap;
 import java.util.Date;
 
@@ -15,6 +18,17 @@ public class CommandBoundary {
 
     public CommandBoundary() {
         this.commandAttributes = new HashMap<>();
+    }
+
+    public CommandBoundary(CommandEntity entity) {
+        this();
+        String[] cmdIdStr = entity.getCommandId().split("@@");
+        this.commandId = new CommandId(cmdIdStr[0], cmdIdStr[1]);
+        this.command = entity.getCommand();
+        this.targetObject = entity.getTargetObject();
+        this.invocationTimestamp = entity.getInvocationTimestamp();
+        this.invokedBy = entity.getInvokedBy();
+        this.commandAttributes = entity.getCommandAttributes();
     }
 
     // Getters and setters
