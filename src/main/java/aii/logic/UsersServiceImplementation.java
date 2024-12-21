@@ -7,7 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import aii.dal.UsersCrud;
 import aii.data.UserEntity;
-import aii.logic.EmailValidator;
+import aii.logic.exceptions.InvalidInputException;
+import aii.logic.exceptions.UserAlreadyExistsException;
+import aii.logic.exceptions.UserNotFoundException;
+import aii.logic.utilities.EmailValidator;
 
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class UsersServiceImplementation implements UsersService {
 	@Value("${spring.application.name:defaultAppName}")
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
-		System.err.println("********" + this.springApplicationName);
+		System.out.println("[DEBUG] " + this.springApplicationName);
 	}
 
 	@Override

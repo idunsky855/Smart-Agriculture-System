@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import aii.logic.InvalidInputException;
 import aii.logic.NewUserBoundary;
 import aii.logic.UserBoundary;
 import aii.logic.UserId;
-import aii.logic.UserNotFoundException;
 import aii.logic.UsersService;
+import aii.logic.exceptions.InvalidInputException;
+import aii.logic.exceptions.UserNotFoundException;
 
 @RestController
 @RequestMapping(path = { "/aii" })

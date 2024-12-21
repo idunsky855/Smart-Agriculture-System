@@ -1,4 +1,4 @@
-package aii.logic;
+package aii.logic.utilities;
 
 import java.util.regex.Pattern;
 
