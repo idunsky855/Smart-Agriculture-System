@@ -3,6 +3,7 @@ package aii.logic;
 import aii.data.UserRole;
 
 public class NewUserBoundary {
+	
 	private String email;
 	private UserRole role;
 	private String username;

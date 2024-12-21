@@ -4,19 +4,20 @@ public class UserId {
     private String systemID;
     private String email;
 
-	public UserId(){
+	public UserId() {
+		
 	}
 
-	public UserId(String systemID, String email){
+	public UserId(String systemID, String email) {
 		this.systemID = systemID;
 		this.email = email;
 	}
 
-	public void setEmail(String emailAddress){
+	public void setEmail(String emailAddress) {
 		this.email = emailAddress;
 	}
 
-	public String getEmail(){
+	public String getEmail() {
 		return this.email;
 	}
 
