@@ -82,6 +82,30 @@ public class CommandController {
             throw new RuntimeException("ERROR - UserId is null");
         }
 
+        if (newCommand.getCommandId().getId() == null) {
+            throw new RuntimeException("ERROR - CommandId - Id is null");
+        }
+
+        if (newCommand.getCommandId().getSystemID() == null) {
+            throw new RuntimeException("ERROR - CommandId - SystemID is null");
+        }
+
+        if (newCommand.getTargetObject().getObjectId().getId() == null) {
+            throw new RuntimeException("ERROR - ObjectId - Id is null");
+        }
+
+        if (newCommand.getTargetObject().getObjectId().getSystemID() == null) {
+            throw new RuntimeException("ERROR - ObjectId - SystemID is null");
+        }
+
+        if (newCommand.getInvokedBy().getUserId().getEmail() == null) {
+            throw new RuntimeException("ERROR - UserId - Email is null");
+        }
+
+        if (newCommand.getInvokedBy().getUserId().getSystemID() == null) {
+            throw new RuntimeException("ERROR - UserId - SystemID is null");
+        }
+
         // Passed validations:
         // Generate a unique commandId
         CommandId generatedCommandId = new CommandId();
