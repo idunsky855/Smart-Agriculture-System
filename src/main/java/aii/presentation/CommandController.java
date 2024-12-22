@@ -1,6 +1,5 @@
 package aii.presentation;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,31 +8,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import aii.logic.CommandBoundary;
-import aii.logic.CommandId;
 import aii.logic.CommandsService;
-import aii.logic.TargetObject;
-import aii.logic.ObjectId;
-import aii.logic.InvokedBy;
-import aii.logic.UserId;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
 import org.springframework.http.MediaType;
 
-import java.util.Date;
+
 
 @RestController
 public class CommandController {
 
     private CommandsService commands;
-    private String applicationName;
+
 
     public CommandController(CommandsService commands) {
         this.commands = commands;

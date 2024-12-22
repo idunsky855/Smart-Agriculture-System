@@ -78,10 +78,12 @@ public class ObjectsServiceImplementation implements ObjectsService{
             object.setCreationTimestamp(new Date());
 
             // create and validate created by
-            userSystemID = userSystemID.trim();
-            userEmail = userEmail.trim();
-            CreatedBy cb = new CreatedBy(userSystemID ,userEmail);
-            if ( cb == null || userSystemID == null || userEmail == null || userEmail.isBlank() || userSystemID.isBlank() ){
+            if ( object.getCreatedBy() == null ){
+                throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
+            }
+            
+            CreatedBy cb = object.getCreatedBy();
+            if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank() || cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank() ){
                 throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
             }
 
@@ -148,7 +150,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
             // if object details updated
             if ( update.getObjectDetails() != null ){
                 // add or update all objectDetails entries
-                updatedObject.getObjectDetails().putAll(update.getObjectDetails());
+                updatedObject.setObjectDetails(update.getObjectDetails());
             }
 
             this.objects.save(updatedObject);
@@ -176,6 +178,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
     @Override
     public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
             String objectId) {
+        
         // check if any of the ID's are either empty or only whitespace
         if ( objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
             throw new InvalidInputException("objectSystemID and objectId can't be blank");
