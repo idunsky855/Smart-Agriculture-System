@@ -4,6 +4,15 @@ public class CommandId {
     private String systemID;
     private String id;
 
+    // Constructors
+    public CommandId() {
+    }
+
+    public CommandId(String systemID, String id) {
+        this.systemID = systemID;
+        this.id = id;
+    }
+
     // Getters and setters
     public String getSystemID() {
         return systemID;
