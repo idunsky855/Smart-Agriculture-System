@@ -9,10 +9,16 @@ import java.util.Map;
 import aii.logic.CommandId;
 import aii.logic.InvokedBy;
 import aii.logic.TargetObject;
+import aii.logic.converters.InvokedByConverter;
+import aii.logic.converters.MapToStringConverter;
+import aii.logic.converters.TargetObjectConverter;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "COMMANDS")
@@ -23,15 +29,17 @@ public class CommandEntity {
 
     private String command;
 
-    @Transient
+    @Convert(converter = TargetObjectConverter.class)
     private TargetObject targetObject;
 
-    @Transient
+    @Convert(converter = InvokedByConverter.class)
     private InvokedBy invokedBy;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Date invocationTimestamp;
 
-    @Transient
+    @Lob
+    @Convert(converter = MapToStringConverter.class)
     private Map<String, Object> commandAttributes;
 
     public CommandEntity() {

@@ -89,13 +89,15 @@ public class CommandsServiceImplementation implements CommandsService {
 
         CommandEntity commandEntity = new CommandEntity();
 
-        CommandId commandId = new CommandId(UUID.randomUUID().toString(), this.springApplicationName);
+        CommandId commandId = new CommandId(this.springApplicationName, UUID.randomUUID().toString());
         commandEntity.setCommandId(commandId);
 
         commandEntity.setCommand(newCommand.getCommand());
         commandEntity.setTargetObject(newCommand.getTargetObject());
         commandEntity.setInvocationTimestamp(new Date());
         commandEntity.setCommandAttributes(newCommand.getCommandAttributes());
+        commandEntity.setInvokedBy(newCommand.getInvokedBy());
+
 
         this.commands.save(commandEntity);
 
@@ -114,10 +116,12 @@ public class CommandsServiceImplementation implements CommandsService {
         }
 
         // TODO: Validate admin credentials
-
+        // TODO: Validate real email
+        /*
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("ERROR - Invalid email format");
         }
+        */
 
         // Fetch all command entities from the DB
         List<CommandEntity> commandEntities = this.commands.findAll();
@@ -138,10 +142,12 @@ public class CommandsServiceImplementation implements CommandsService {
         }
 
         // TODO: Validate admin credentials
-
+        // TODO: Validate real email:
+        /*
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("[ERROR] - Invalid email format");
         }
+        */
 
         this.commands.deleteAll();
         System.out.println("[WARN] - All commands deleted by admin: " + adminSystemID + " / " + adminEmail);

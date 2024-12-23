@@ -28,12 +28,9 @@ public class CommandController {
 
     // GET endpoint for fetching all commands as a HashMap
     @GetMapping(
-        path = {"/aii/admin/commands/{adminSystemID}/{adminEmail}"}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public CommandBoundary[] getAllCommands(
-        @PathVariable("adminSystemID") String userSystemID,
-        @PathVariable("adminEmail") String userEmail
-    ) {
-        CommandBoundary[] rv = this.commands.getAllCommands(userSystemID, userEmail).toArray(new CommandBoundary[0]);
+        path = {"/aii/admin/commands/"}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public CommandBoundary[] getAllCommands() {
+        CommandBoundary[] rv = this.commands.getAllCommands("willBeUserSystemId", "willBeAdminEmail").toArray(new CommandBoundary[0]);
         System.out.println("[DEBUG] - All commands: " + rv);
         return rv;
     }
@@ -61,17 +58,15 @@ public class CommandController {
 }
 
     // DELETE all commands
-    @DeleteMapping("/aii/admin/commands/{adminSystemID}/{adminEmail}")
+    @DeleteMapping("/aii/admin/commands/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllCommands(
-        @PathVariable("adminSystemID") String adminSystemID,
-        @PathVariable("adminEmail") String adminEmail
-    ) {
+    public void deleteAllCommands() {
         try {
-            this.commands.deleteAllCommands(adminSystemID, adminEmail);
+            this.commands.deleteAllCommands("willBeUserSystemId", "willBeAdminEmail");
             System.out.println("[INFO] - All commands have been deleted.");
         } catch (Exception e) {
-            System.out.println("ERROR - Could not delete all commands by " + adminSystemID + " and " + adminEmail + " due to: " + e.getMessage());
+            System.out.println("ERROR - Could not delete all commands due to: " + e.getMessage());
+            throw new RuntimeException("ERROR - Could not delete all commands");
         }
     }
 }
