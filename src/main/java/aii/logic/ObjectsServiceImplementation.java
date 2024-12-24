@@ -14,21 +14,29 @@ import aii.dal.ObjectsCrud;
 import aii.data.ObjectEntity;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.ObjectNotFoundException;
+import aii.logic.utilities.EmailValidator;
+import aii.logic.converters.ObjectConverter;
 
 
 @Service
 public class ObjectsServiceImplementation implements ObjectsService{
     private ObjectsCrud objects;
     private String springApplicationName;
+    private ObjectConverter converter;
+    private EmailValidator emailValidator;
 
-    public ObjectsServiceImplementation(ObjectsCrud objects){
+    public ObjectsServiceImplementation(ObjectsCrud objects, ObjectConverter converter){
         this.objects = objects;
+        this.converter = converter;
+        this.emailValidator = new EmailValidator();
     }
 
     @Value("${spring.application.name:defaultAppName}")
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
-		System.err.println("[DEBUG] - ObjectsService " + this.springApplicationName);
+        // log debug
+        System.out.println("[DEBUG] - ObjectsServiceImplementation " + this.springApplicationName);
+		System.out.println("[DEBUG] - ObjectsService " + this.springApplicationName);
 	}
 
     @Override
@@ -43,57 +51,59 @@ public class ObjectsServiceImplementation implements ObjectsService{
         }
         
         // create id for the new object
-            ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
-            object.setObjectId(objectId);
+        ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
+        object.setObjectId(objectId);
 
-            // validate type
-            if ( object.getType() == null || object.getType().isBlank()){
-                throw new InvalidInputException("New objects must contain a type value!");
-            }
+        // validate type
+        if ( object.getType() == null || object.getType().isBlank()){
+            throw new InvalidInputException("New objects must contain a type value!");
+        }
+        
+        // validate if alias is blank - replace with null 
+        if (object.getAlias() != null && object.getAlias().isBlank()) {
+            object.setAlias(null);
+        }
 
-            // validate status
-            if ( object.getStatus() == null || object.getStatus().isBlank() ){
-                object.setStatus("UNAVAILABLE");
-            }
-            
-            // if object location is null - set it to a new one
-            if(object.getLocation() == null){
-                object.setLocation(new Location());
-            }
-            
-            // validate location and set to default if invalid
-            Location objLocation = object.getLocation();
-            if ( objLocation.getLat() == null || objLocation.getLng() == null ){
-                // if no valid location was given - set the location to Google's Headquarters - Mountain View, California
-                object.setLocation(new Location(37.4220,-122.0841));
-            }
+        // validate status
+        if ( object.getStatus() == null || object.getStatus().isBlank() ){
+            object.setStatus("UNAVAILABLE");
+        }
+        
+        // if object location is null - set it to a new one
+        if(object.getLocation() == null){
+            object.setLocation(new Location());
+        }
+        // validate location and set to default if invalid
+        Location objLocation = object.getLocation();
+        if ( objLocation.getLat() == null || objLocation.getLng() == null ){
+            // if no valid location was given - set the location to Google's Headquarters - Mountain View, California
+            object.setLocation(new Location(37.4220,-122.0841));
+        }
 
-            // validate active
-            if ( object.getActive() == null ){
-                // default is active = false
-                object.setActive(false);
-            }
+        // validate active
+        if ( object.getActive() == null ){
+            // default is active = false
+            object.setActive(false);
+        }
 
-            // set creation timestamp - now
-            object.setCreationTimestamp(new Date());
-
-            // create and validate created by
-            if ( object.getCreatedBy() == null ){
-                throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
-            }
-            
-            CreatedBy cb = object.getCreatedBy();
-            if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank() || cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank() ){
-                throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
-            }
-
-            // validate if objectDetails exist or should be created
-            if ( object.getObjectDetails() == null ){
-                object.setObjectDetails(new HashMap<>());
-            }
-
-            // INSERT object to db
-            return new ObjectBoundary(this.objects.save(object.toEntity()));
+        // set creation timestamp - now
+        object.setCreationTimestamp(new Date());
+        
+        // create and validate created by
+        if ( object.getCreatedBy() == null ){
+            throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
+        }
+        CreatedBy cb = object.getCreatedBy();
+        if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank() || cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank() || !emailValidator.isEmailValid(cb.getUserId().getEmail()) ){
+            throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
+        }
+        
+        // validate if objectDetails exist or should be created
+        if ( object.getObjectDetails() == null ){
+            object.setObjectDetails(new HashMap<>());
+        }
+        // INSERT object to db
+        return this.converter.toBoundary(this.objects.save(this.converter.toEntity(object)));
     }
 
     @Override
@@ -153,8 +163,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
                 updatedObject.setObjectDetails(update.getObjectDetails());
             }
 
-            this.objects.save(updatedObject);
-            return new ObjectBoundary(updatedObject);
+            return this.converter.toBoundary(this.objects.save(updatedObject));
 
         }else{
 
@@ -171,7 +180,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
         return this.objects
             .findAll()
             .stream()
-            .map(ObjectBoundary::new)
+            .map(this.converter::toBoundary)
             .toList();
     }
 
@@ -188,7 +197,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
             throw new InvalidInputException("userSystemID and userEmail can't be blank");
         }
 
-        return this.objects.findById(objectSystemID + "@@" + objectId).map(ObjectBoundary::new);
+        return this.objects.findById(objectSystemID + "@@" + objectId).map(this.converter::toBoundary);
     }
 
     @Override

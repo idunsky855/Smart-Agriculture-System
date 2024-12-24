@@ -58,6 +58,7 @@ public class ObjectController {
 
 		String userSystemID = userId.getSystemID();
 		String userEmail = userId.getEmail();
+
 		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
 			throw new InvalidInputException("userSystemID and userEmail can't be blank");
 		}

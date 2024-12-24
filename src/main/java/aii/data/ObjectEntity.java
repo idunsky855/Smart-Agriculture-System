@@ -7,10 +7,15 @@ import java.util.Map;
 import aii.logic.CreatedBy;
 import aii.logic.Location;
 import aii.logic.ObjectId;
+import aii.logic.converters.LocationConverter;
+import aii.logic.converters.MapToStringConverter;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "OBJECTS")
@@ -22,19 +27,18 @@ public class ObjectEntity {
     private String alias;
     private String Status;
     
-    @Transient
+    @Convert(converter = LocationConverter.class)
     private Location location;
     
-    @Transient
-    private Boolean active;
+    private boolean active;
     
-    @Transient
+    @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
     
-    @Transient
-    private CreatedBy createdBy;
+    private String createdBy;
     
-    @Transient
+    @Lob
+    @Convert( converter = MapToStringConverter.class)
     private Map<String, Object> objectDetails;
 
 
@@ -82,11 +86,11 @@ public class ObjectEntity {
         this.location = location;
     }
 
-    public Boolean getActive() {
+    public boolean getActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
@@ -98,11 +102,11 @@ public class ObjectEntity {
         this.creationTime = creationTime;
     }
 
-    public CreatedBy getCreatedBy() {
+    public String getCreatdBy(){
         return createdBy;
     }
 
-    public void setCreatedBy(CreatedBy createdBy) {
+    public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 

@@ -1,12 +1,7 @@
 package aii.logic;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
-
-import aii.data.ObjectEntity;
-
-
 public class ObjectBoundary {
 	private ObjectId objectId;
 	private String type;
@@ -20,44 +15,7 @@ public class ObjectBoundary {
 	
 	public ObjectBoundary() {	
 	}
-	public ObjectBoundary(ObjectEntity entity){
-		this();
-		String[] objIdStr = entity.getObjectId().split("@@");
-		this.objectId = new ObjectId(objIdStr[1], objIdStr[0]);
-		this.type = entity.getType();
-		this.alias = entity.getAlias();
-		this.status = entity.getStatus();
-		this.location = entity.getLocation();
-		this.active = entity.getActive();
-		this.creationTimestamp = entity.getCreationTime();
-		this.createdBy = entity.getCreatedBy();
-		this.objectDetails = entity.getObjectDetails();
-
-		//!! DELETE before submission - and check
-		// TODO: delete all of these checks for sprint3 - from here to the bottom
-		if (entity.getLocation() == null ){
-			this.location = new Location(0.0, 0.0);
-		}
-
-		if (entity.getCreationTime() == null){
-			this.creationTimestamp = new Date();
-		}
-		
-		if (entity.getActive() == null){
-			this.active = false;
-		}
-		
-		if (entity.getCreatedBy() == null ){
-			this.createdBy = new CreatedBy();
-			this.createdBy.setUserId(new UserId("",""));
-		}
-		
-		if (entity.getObjectDetails() == null){
-			this.objectDetails = new HashMap<>();
-		}
-	}
-
-	// for tests
+	
 	public ObjectBoundary(ObjectId objectId, String type, String alias, String status, Location location, Boolean active, Date creationTimestamp, CreatedBy createdBy, Map<String, Object> objectDetails) {
 		this.objectId = objectId;
 		this.type = type;
@@ -142,24 +100,6 @@ public class ObjectBoundary {
 	public void setCreatedBy(CreatedBy cb){
 		this.createdBy = cb;
 	}
-
-	public ObjectEntity toEntity(){
-		
-		ObjectEntity entity = new ObjectEntity();
-		
-		entity.setObjectId(this.objectId);
-		entity.setType(this.type);
-		entity.setAlias(this.alias);
-		entity.setStatus(this.status);
-		entity.setLocation(this.location);
-		entity.setActive(this.active);
-		entity.setCreationTime(this.creationTimestamp);
-		entity.setCreatedBy(this.createdBy);
-		entity.setObjectDetails(this.objectDetails);
-
-		return entity;
-	}
-
 
 	@Override
 	public String toString() {
