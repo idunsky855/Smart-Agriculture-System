@@ -75,7 +75,7 @@ public class UserController {
 	public UserBoundary[] exportAllUsers() {
 		
 		return this.users
-				.getAllUsers()
+				.getAllUsers("","")
 				.toArray(new UserBoundary[0]);
 	}
 
@@ -84,7 +84,7 @@ public class UserController {
 	public void deleteAllUsers() {
 
 		this.users
-		.deleteAllUsers();
+		.deleteAllUsers("","");
 	}
 
 }

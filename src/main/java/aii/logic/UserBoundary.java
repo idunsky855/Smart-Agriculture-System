@@ -1,6 +1,5 @@
 package aii.logic;
 
-import aii.data.UserEntity;
 import aii.data.UserRole;
 
 public class UserBoundary {
@@ -18,17 +17,6 @@ public class UserBoundary {
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
-	}
-	
-	public UserBoundary (UserEntity entity) {
-		this();
-		String systemID = entity.getUserId().split("@@")[0];
-		String email = entity.getUserId().split("@@")[1];
-		this.userId = new UserId(systemID, email);
-		this.username = entity.getUsername();
-		this.avatar = entity.getAvatar();
-		
-		// TODO initialize other boundary fields using entity
 	}
 
 	public UserRole getRole() {
@@ -61,18 +49,6 @@ public class UserBoundary {
 
 	public void setUserId(UserId userId) {
 		this.userId = userId;
-	}
-	
-	public UserEntity toEntity() {
-		UserEntity entity = new UserEntity();
-		
-		entity.setUserId(userId);
-		entity.setUsername(username);
-		entity.setAvatar(avatar);
-		
-		// TODO update other field of entity
-		
-		return entity;
 	}
 
 	@Override

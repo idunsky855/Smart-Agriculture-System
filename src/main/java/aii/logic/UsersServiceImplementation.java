@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import aii.dal.UsersCrud;
 import aii.data.UserEntity;
+import aii.logic.converters.UserConverter;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.UserAlreadyExistsException;
 import aii.logic.exceptions.UserNotFoundException;
@@ -21,12 +22,13 @@ import org.springframework.stereotype.Service;
 public class UsersServiceImplementation implements UsersService {
 
 	private UsersCrud users;
+	private UserConverter converter;
 	private String springApplicationName;
 	private EmailValidator emailValidator;
 	
-
-	public UsersServiceImplementation(UsersCrud users) {
+	public UsersServiceImplementation(UsersCrud users, UserConverter converter) {
 		this.users = users;
+		this.converter = converter;
 		emailValidator = new EmailValidator();
 	}
 
@@ -43,12 +45,6 @@ public class UsersServiceImplementation implements UsersService {
 		if (user == null || user.getUserId() == null)
 			throw new InvalidInputException("Invalid input - user is not initialized");
 		
-		if (user.getUserId().getEmail() == null || user.getUserId().getEmail().trim().isEmpty())
-			throw new InvalidInputException("Invalid input - email is not initialized");
-
-		if (user.getRole() == null)
-			throw new InvalidInputException("Invalid input - role is not initialized");
-	
 		if (!emailValidator.isEmailValid(user.getUserId().getEmail()))
 			throw new InvalidInputException("Invalid input - invalid email");
 		
@@ -63,7 +59,7 @@ public class UsersServiceImplementation implements UsersService {
 		if (!login(user.getUserId().getSystemID(),user.getUserId().getEmail()).isEmpty())
 			throw new UserAlreadyExistsException("A user with the same email is already exists in the system");
 
-		return new UserBoundary(this.users.save(user.toEntity()));
+		return this.converter.toBoundary(this.users.save(this.converter.toEntity(user)));
 	}
 
 	@Override
@@ -79,7 +75,7 @@ public class UsersServiceImplementation implements UsersService {
 		if(!emailValidator.isEmailValid(userEmail))
 			throw new InvalidInputException("Invalid input - invalid email");
 		
-		return this.users.findById(systemID + "@@" + userEmail).map(UserBoundary::new);
+		return this.users.findById(systemID + "@@" + userEmail).map(this.converter::toBoundary);
 	}
 
 	@Override
@@ -117,7 +113,7 @@ public class UsersServiceImplementation implements UsersService {
 				updatedUser.setAvatar(update.getAvatar());
 			}
 			
-			return new UserBoundary(this.users.save(updatedUser));
+			return this.converter.toBoundary(this.users.save(updatedUser));
 
 		} else {
 			throw new UserNotFoundException("Could not find user by id: " + key);
@@ -127,13 +123,13 @@ public class UsersServiceImplementation implements UsersService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserBoundary> getAllUsers() {
-		return this.users.findAll().stream().map(UserBoundary::new).toList();
+	public List<UserBoundary> getAllUsers(String adminSystemID, String adminEmail) {
+		return this.users.findAll().stream().map(this.converter::toBoundary).toList();
 	}
 
 	@Override
 	@Transactional
-	public void deleteAllUsers() {
+	public void deleteAllUsers(String adminSystemID, String adminEmail) {
 		this.users.deleteAll();
 		
 		if (this.users.findAll().size() != 0)

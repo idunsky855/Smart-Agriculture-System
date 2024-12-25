@@ -11,9 +11,7 @@ public interface UsersService {
 	
 	public UserBoundary updateUser(String systemID, String userEmail, UserBoundary update);
 	
-	//public List<UserBoundary> getAllUsers(String adminSystemID, String adminEmail);
-	public List<UserBoundary> getAllUsers();
+	public List<UserBoundary> getAllUsers(String adminSystemID, String adminEmail);
 	
-	//public void deleteAllUsers(String adminSystemID, String adminEmail);
-	public void deleteAllUsers();
+	public void deleteAllUsers(String adminSystemID, String adminEmail);
 }

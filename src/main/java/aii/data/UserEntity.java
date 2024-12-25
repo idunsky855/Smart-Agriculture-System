@@ -2,9 +2,10 @@ package aii.data;
 
 import aii.logic.UserId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "USERS")
@@ -13,7 +14,7 @@ public class UserEntity {
 	@Id
 	private String userId;
 	
-	@Transient
+	@Enumerated(EnumType.STRING)
 	private UserRole role;
 	
 	private String username;
