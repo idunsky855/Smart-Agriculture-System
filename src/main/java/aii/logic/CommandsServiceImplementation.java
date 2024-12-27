@@ -5,15 +5,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import aii.dal.CommandsCrud;
 import aii.data.CommandEntity;
 import aii.logic.exceptions.InvalidCommandException;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.utilities.EmailValidator;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -43,8 +43,12 @@ public class CommandsServiceImplementation implements CommandsService {
             throw new InvalidCommandException("ERROR - Command is null");
         }
 
-        if(newCommand.getCommand() == null) {
+        if (newCommand.getCommand() == null) {
             throw new InvalidCommandException("ERROR - Command is null");
+        }
+
+        if (newCommand.getCommand().isEmpty()) {
+            throw new InvalidCommandException("ERROR - Command is empty");
         }
 
         if (newCommand.getTargetObject() == null) {
@@ -83,6 +87,10 @@ public class CommandsServiceImplementation implements CommandsService {
             throw new InvalidCommandException("ERROR - UserId - Email is null");
         }
 
+        if (!emailValidator.isEmailValid(newCommand.getInvokedBy().getUserId().getEmail())) {
+            throw new InvalidCommandException("ERROR - UserId - Invalid email format");
+        }
+
         if (newCommand.getInvokedBy().getUserId().getSystemID() == null) {
             throw new InvalidCommandException("ERROR - UserId - SystemID is null");
         }
@@ -116,12 +124,11 @@ public class CommandsServiceImplementation implements CommandsService {
         }
 
         // TODO: Validate admin credentials
-        // TODO: Validate real email
-        /*
+
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("ERROR - Invalid email format");
         }
-        */
+
 
         // Fetch all command entities from the DB
         List<CommandEntity> commandEntities = this.commands.findAll();
@@ -142,12 +149,11 @@ public class CommandsServiceImplementation implements CommandsService {
         }
 
         // TODO: Validate admin credentials
-        // TODO: Validate real email:
-        /*
+
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("[ERROR] - Invalid email format");
         }
-        */
+
 
         this.commands.deleteAll();
         System.out.println("[WARN] - All commands deleted by admin: " + adminSystemID + " / " + adminEmail);
