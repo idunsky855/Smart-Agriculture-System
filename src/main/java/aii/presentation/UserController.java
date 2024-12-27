@@ -17,7 +17,7 @@ import aii.logic.UserBoundary;
 import aii.logic.UserId;
 import aii.logic.UsersService;
 import aii.logic.exceptions.InvalidInputException;
-import aii.logic.exceptions.UserNotFoundException;
+import aii.logic.exceptions.UserUnauthorizedException;
 
 @RestController
 @RequestMapping(path = { "/aii" })
@@ -35,9 +35,8 @@ public class UserController {
 
 		return this.users
 				.login(systemID, userEmail)
-				.orElseThrow(() -> new UserNotFoundException(
-						"Could not find user by id: " + systemID + "@@" + userEmail));
-		
+				.orElseThrow(() -> new UserUnauthorizedException(
+						"Could not find user by id or user is unauthorized: " + systemID + "@@" + userEmail));
 	}
 
 	@PostMapping(path = { "/users" }, consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
@@ -50,7 +49,7 @@ public class UserController {
 
 		if (newUser.getRole() == null)
 			throw new InvalidInputException("Invalid input - role is not initialized");
-		
+
 		UserBoundary rv = new UserBoundary();
 		rv.setUsername(newUser.getUsername());
 		rv.setRole(newUser.getRole());
@@ -58,7 +57,7 @@ public class UserController {
 		UserId userId = new UserId();
 		userId.setEmail(newUser.getEmail());
 		rv.setUserId(userId);
-		
+
 		return this.users
 				.createUser(rv);
 	}
@@ -66,14 +65,14 @@ public class UserController {
 	@PutMapping(path = { "/users/{systemID}/{userEmail}" }, consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public void updateUser(@PathVariable("systemID") String systemID, @PathVariable("userEmail") String userEmail,
 			@RequestBody UserBoundary update) {
-		
+
 		this.users
 		.updateUser(systemID, userEmail, update);
 	}
 
 	@GetMapping(path = { "/admin/users" }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public UserBoundary[] exportAllUsers() {
-		
+
 		return this.users
 				.getAllUsers("","")
 				.toArray(new UserBoundary[0]);

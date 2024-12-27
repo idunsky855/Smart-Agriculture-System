@@ -1,18 +1,20 @@
 package aii.presentation;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 import aii.logic.CommandBoundary;
 import aii.logic.CommandsService;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.http.MediaType;
 
 
 
@@ -30,8 +32,8 @@ public class CommandController {
     @GetMapping(
         path = {"/aii/admin/commands/"}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public CommandBoundary[] getAllCommands() {
-        CommandBoundary[] rv = this.commands.getAllCommands("willBeUserSystemId", "willBeAdminEmail").toArray(new CommandBoundary[0]);
-        System.out.println("[DEBUG] - All commands: " + rv);
+        CommandBoundary[] rv = this.commands.getAllCommands("willBeUserSystemId", "willBeAdminEmail@gmail.com").toArray(new CommandBoundary[0]);
+        System.out.println("[DEBUG] - All commands: " + Arrays.toString(rv));
         return rv;
     }
 
@@ -62,7 +64,7 @@ public class CommandController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllCommands() {
         try {
-            this.commands.deleteAllCommands("willBeUserSystemId", "willBeAdminEmail");
+            this.commands.deleteAllCommands("willBeUserSystemId", "willBeAdminEmail@gmail.com");
             System.out.println("[INFO] - All commands have been deleted.");
         } catch (Exception e) {
             System.out.println("ERROR - Could not delete all commands due to: " + e.getMessage());

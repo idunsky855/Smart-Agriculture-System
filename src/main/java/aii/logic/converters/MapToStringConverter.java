@@ -1,11 +1,10 @@
 package aii.logic.converters;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.persistence.AttributeConverter;
 
 public class MapToStringConverter implements AttributeConverter<Map<String, Object>, String> {
 
