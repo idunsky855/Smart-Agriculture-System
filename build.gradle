@@ -21,14 +21,17 @@ dependencies {
 	// jpa and h2
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+	// jakarta mail
+	implementation 'com.sun.mail:jakarta.mail:2.0.1'
+
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.7.0'
 
-	
+
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	
+
 	// h2 database for testing
 	runtimeOnly 'com.h2database:h2'
 
