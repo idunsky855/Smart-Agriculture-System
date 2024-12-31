@@ -4,10 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import aii.logic.CreatedBy;
 import aii.logic.Location;
 import aii.logic.ObjectId;
-import aii.logic.converters.LocationConverter;
 import aii.logic.converters.MapToStringConverter;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -27,8 +25,7 @@ public class ObjectEntity {
     private String alias;
     private String Status;
     
-    @Convert(converter = LocationConverter.class)
-    private Location location;
+    private String location;
     
     private boolean active;
     
@@ -78,12 +75,16 @@ public class ObjectEntity {
        Status = status;
     }
 
-    public Location getLocation() {
+    public String getLocation() {
         return location;
+    }
+    
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void setLocation(Location location) {
-        this.location = location;
+        this.location = location.getLat() + "@@" + location.getLng();
     }
 
     public boolean getActive() {
@@ -102,7 +103,7 @@ public class ObjectEntity {
         this.creationTime = creationTime;
     }
 
-    public String getCreatdBy(){
+    public String getCreatedBy(){
         return createdBy;
     }
 
