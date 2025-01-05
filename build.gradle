@@ -18,6 +18,10 @@ repositories {
 }
 
 dependencies {
+
+	// jakarta mail
+	implementation 'com.sun.mail:jakarta.mail:2.0.1'
+	
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	
