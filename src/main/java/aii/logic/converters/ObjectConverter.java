@@ -5,6 +5,7 @@ import aii.logic.ObjectBoundary;
 import aii.logic.ObjectId;
 import aii.logic.CreatedBy;
 import aii.data.ObjectEntity;
+import aii.logic.Location;
 
 
 @Component
@@ -16,7 +17,7 @@ public class ObjectConverter {
         entity.setType(boundary.getType());
         entity.setAlias(boundary.getAlias());
         entity.setStatus(boundary.getStatus());
-		entity.setLocation(boundary.getLocation());
+		entity.setLocation(boundary.getLocation().getLat() + "@@" + boundary.getLocation().getLng());
 		entity.setActive(boundary.getActive());
         entity.setCreationTime(boundary.getCreationTimestamp());
 		entity.setCreatedBy(boundary.getCreatedBy().getUserId().getSystemID() + "@@" + boundary.getCreatedBy().getUserId().getEmail());
@@ -32,11 +33,12 @@ public class ObjectConverter {
 		boundary.setType(entity.getType());
 		boundary.setAlias(entity.getAlias());
 		boundary.setStatus(entity.getStatus());
-		boundary.setLocation(entity.getLocation());
+        String[] locationStr = entity.getLocation().split("@@");
+		boundary.setLocation(new Location(Double.parseDouble(locationStr[0]), Double.parseDouble(locationStr[1])));
 		boundary.setActive(entity.getActive());
 		boundary.setCreationTimestamp(entity.getCreationTime());
         
-        String[] createdByString = entity.getCreatdBy().split("@@");
+        String[] createdByString = entity.getCreatedBy().split("@@");
         String systemID = createdByString[0];
         String userEmail = createdByString[1];
 		

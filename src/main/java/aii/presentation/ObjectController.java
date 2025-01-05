@@ -30,7 +30,7 @@ public class ObjectController {
 	}
 
 	@GetMapping(
-			path = {"/aii/objects/"},
+			path = {"/aii/objects"},
 			produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary[] getAllObjects() {
 		ObjectBoundary[] rv = this.objects.getAll("userSystemID", "userEmail").toArray(new ObjectBoundary[0]);

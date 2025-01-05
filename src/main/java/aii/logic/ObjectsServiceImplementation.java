@@ -60,13 +60,13 @@ public class ObjectsServiceImplementation implements ObjectsService{
         }
         
         // validate if alias is blank - replace with null 
-        if (object.getAlias() != null && object.getAlias().isBlank()) {
-            object.setAlias(null);
+        if ( object.getAlias() == null || object.getAlias().isBlank() ){
+            throw new InvalidInputException("New objects must contain an alias value!");
         }
 
         // validate status
         if ( object.getStatus() == null || object.getStatus().isBlank() ){
-            object.setStatus("UNAVAILABLE");
+            throw new InvalidInputException("New objects must contain a status value!");
         }
         
         // if object location is null - set it to a new one
@@ -185,6 +185,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
             String objectId) {
         
@@ -201,6 +202,7 @@ public class ObjectsServiceImplementation implements ObjectsService{
     }
 
     @Override
+    @Transactional
     public void deleteAllObjects(String adminSystemID, String adminEmail) {
         this.objects.deleteAll();
     }
