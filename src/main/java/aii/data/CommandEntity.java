@@ -2,7 +2,6 @@ package aii.data;
 
 
 import java.util.Date;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import aii.logic.TargetObject;
 import aii.logic.converters.InvokedByConverter;
 import aii.logic.converters.MapToStringConverter;
 import aii.logic.converters.TargetObjectConverter;
+import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -27,6 +27,7 @@ public class CommandEntity {
     @Id
     private String commandId;
 
+    @Column(name = "command_value")
     private String command;
 
     @Convert(converter = TargetObjectConverter.class)

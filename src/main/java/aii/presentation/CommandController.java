@@ -15,25 +15,29 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import aii.logic.CommandBoundary;
-import aii.logic.CommandsService;
+import aii.logic.EnhancedCommandService;
 
 
 
 @RestController
 public class CommandController {
 
-    private CommandsService commands;
+    private EnhancedCommandService commands;
 
 
-    public CommandController(CommandsService commands) {
+    public CommandController(EnhancedCommandService commands) {
         this.commands = commands;
     }
 
     // GET endpoint for fetching all commands as a HashMap
     @GetMapping(
-        path = {"/aii/admin/commands/"}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public CommandBoundary[] getAllCommands() {
-        CommandBoundary[] rv = this.commands.getAllCommands("willBeUserSystemId", "willBeAdminEmail@gmail.com").toArray(new CommandBoundary[0]);
+        path = {"/aii/admin/commands"}, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public CommandBoundary[] getAllCommands(
+        @RequestParam(name = "userSystemID", required = true) String userSystemID,
+        @RequestParam(name = "userEmail", required = true) String userEmail,
+        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+        @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+        CommandBoundary[] rv = this.commands.getAllCommands(userSystemID, userEmail, page, size).toArray(new CommandBoundary[0]);
         System.out.println("[DEBUG] - All commands: " + Arrays.toString(rv));
         return rv;
     }
