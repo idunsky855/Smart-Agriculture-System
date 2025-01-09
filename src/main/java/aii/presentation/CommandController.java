@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,11 +61,13 @@ public class CommandController {
 }
 
     // DELETE all commands
-    @DeleteMapping("/aii/admin/commands/")
+    @DeleteMapping("/aii/admin/commands")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllCommands() {
+    public void deleteAllCommands(
+        @RequestParam(name = "userSystemID", required=true) String userSystemID,
+        @RequestParam(name = "userEmail", required=true) String userEmail) {
         try {
-            this.commands.deleteAllCommands("willBeUserSystemId", "willBeAdminEmail@gmail.com");
+            this.commands.deleteAllCommands(userSystemID, userEmail);
             System.out.println("[INFO] - All commands have been deleted.");
         } catch (Exception e) {
             System.out.println("ERROR - Could not delete all commands due to: " + e.getMessage());

@@ -36,7 +36,7 @@ public class CommandsServiceImplementation implements CommandsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = false)
     public List<Object> invokeCommand(CommandBoundary newCommand) {
         // Input validations:
         if (newCommand == null) {
@@ -75,12 +75,20 @@ public class CommandsServiceImplementation implements CommandsService {
             throw new InvalidCommandException("ERROR - CommandId - SystemID is null");
         }
 
+        if (newCommand.getCommandId().getSystemID().isEmpty()) {
+            throw new InvalidCommandException("ERROR - CommandId - SystemID is empty");
+        }
+
         if (newCommand.getTargetObject().getObjectId().getId() == null) {
             throw new InvalidCommandException("ERROR - ObjectId - Id is null");
         }
 
         if (newCommand.getTargetObject().getObjectId().getSystemID() == null) {
             throw new InvalidCommandException("ERROR - ObjectId - SystemID is null");
+        }
+
+        if (newCommand.getTargetObject().getObjectId().getSystemID().isEmpty()) {
+            throw new InvalidCommandException("ERROR - ObjectId - SystemID is empty");
         }
 
         if (newCommand.getInvokedBy().getUserId().getEmail() == null) {
@@ -93,6 +101,10 @@ public class CommandsServiceImplementation implements CommandsService {
 
         if (newCommand.getInvokedBy().getUserId().getSystemID() == null) {
             throw new InvalidCommandException("ERROR - UserId - SystemID is null");
+        }
+
+        if (newCommand.getInvokedBy().getUserId().getSystemID().isEmpty()) {
+            throw new InvalidCommandException("ERROR - UserId - SystemID is empty");
         }
 
         CommandEntity commandEntity = new CommandEntity();
@@ -117,6 +129,7 @@ public class CommandsServiceImplementation implements CommandsService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail) {
         // Validate admin credentials
         if (adminSystemID == null || adminEmail == null) {
@@ -143,6 +156,7 @@ public class CommandsServiceImplementation implements CommandsService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void deleteAllCommands(String adminSystemID, String adminEmail) {
         if (adminSystemID == null || adminEmail == null) {
             throw new InvalidInputException("[ERROR] - Admin credentials are required");
