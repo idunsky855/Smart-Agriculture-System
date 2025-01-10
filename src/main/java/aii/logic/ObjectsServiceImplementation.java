@@ -7,204 +7,300 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import aii.dal.ObjectsCrud;
 import aii.data.ObjectEntity;
+import aii.data.UserRole;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.ObjectNotFoundException;
+import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
 import aii.logic.converters.ObjectConverter;
 
-
 @Service
-public class ObjectsServiceImplementation implements ObjectsService{
-    private ObjectsCrud objects;
-    private String springApplicationName;
-    private ObjectConverter converter;
-    private EmailValidator emailValidator;
+public class ObjectsServiceImplementation implements EnhancedObjectsService {
+	private ObjectsCrud objects;
+	private String springApplicationName;
+	private ObjectConverter converter;
+	private EmailValidator emailValidator;
+	private EnhancedUsersService users;
 
-    public ObjectsServiceImplementation(ObjectsCrud objects, ObjectConverter converter){
-        this.objects = objects;
-        this.converter = converter;
-        this.emailValidator = new EmailValidator();
-    }
+	public ObjectsServiceImplementation(ObjectsCrud objects, ObjectConverter converter, EnhancedUsersService users) {
+		this.objects = objects;
+		this.converter = converter;
+		this.emailValidator = new EmailValidator();
+		this.users = users;
+	}
 
-    @Value("${spring.application.name:defaultAppName}")
+	@Value("${spring.application.name:defaultAppName}")
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
-        // log debug
-        System.out.println("[DEBUG] - ObjectsServiceImplementation " + this.springApplicationName);
+		// log debug
+		System.out.println("[DEBUG] - ObjectsServiceImplementation " + this.springApplicationName);
 		System.out.println("[DEBUG] - ObjectsService " + this.springApplicationName);
 	}
 
-    @Override
-    @Transactional
-    public ObjectBoundary create(String userSystemID, String userEmail, ObjectBoundary object) {            
-        
-        if (object == null ){
-            throw new InvalidInputException("object can't be NULL!");
-        }
-        if ( userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-            throw new InvalidInputException("userSystemID and userEmail can't be blank");
-        }
-        
-        // create id for the new object
-        ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
-        object.setObjectId(objectId);
+	@Override
+	@Transactional
+	public ObjectBoundary create(String userSystemID, String userEmail, ObjectBoundary object) {
 
-        // validate type
-        if ( object.getType() == null || object.getType().isBlank()){
-            throw new InvalidInputException("New objects must contain a type value!");
-        }
-        
-        // validate if alias is blank - replace with null 
-        if ( object.getAlias() == null || object.getAlias().isBlank() ){
-            throw new InvalidInputException("New objects must contain an alias value!");
-        }
+		if (object == null) {
+			throw new InvalidInputException("object can't be NULL!");
+		}
+		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
+			throw new InvalidInputException("userSystemID and userEmail can't be blank");
+		}
 
-        // validate status
-        if ( object.getStatus() == null || object.getStatus().isBlank() ){
-            throw new InvalidInputException("New objects must contain a status value!");
-        }
-        
-        // if object location is null - set it to a new one
-        if(object.getLocation() == null){
-            object.setLocation(new Location());
-        }
-        // validate location and set to default if invalid
-        Location objLocation = object.getLocation();
-        if ( objLocation.getLat() == null || objLocation.getLng() == null ){
-            // if no valid location was given - set the location to Google's Headquarters - Mountain View, California
-            object.setLocation(new Location(37.4220,-122.0841));
-        }
+		// create id for the new object
+		ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
+		object.setObjectId(objectId);
 
-        // validate active
-        if ( object.getActive() == null ){
-            // default is active = false
-            object.setActive(false);
-        }
+		// validate type
+		if (object.getType() == null || object.getType().isBlank()) {
+			throw new InvalidInputException("New objects must contain a type value!");
+		}
 
-        // set creation timestamp - now
-        object.setCreationTimestamp(new Date());
-        
-        // create and validate created by
-        if ( object.getCreatedBy() == null ){
-            throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
-        }
-        CreatedBy cb = object.getCreatedBy();
-        if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank() || cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank() || !emailValidator.isEmailValid(cb.getUserId().getEmail()) ){
-            throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
-        }
-        
-        // validate if objectDetails exist or should be created
-        if ( object.getObjectDetails() == null ){
-            object.setObjectDetails(new HashMap<>());
-        }
-        // INSERT object to db
-        return this.converter.toBoundary(this.objects.save(this.converter.toEntity(object)));
-    }
+		// validate if alias is blank - replace with null
+		if (object.getAlias() == null || object.getAlias().isBlank()) {
+			throw new InvalidInputException("New objects must contain an alias value!");
+		}
 
-    @Override
-    @Transactional
-    public ObjectBoundary update(String userSystemID, String userEmail, String objectSystemID, String objectId,
-            ObjectBoundary update) {
+		// validate status
+		if (object.getStatus() == null || object.getStatus().isBlank()) {
+			throw new InvalidInputException("New objects must contain a status value!");
+		}
 
-        Optional<ObjectEntity> entityOp = this.objects.findById(objectSystemID + "@@" +objectId);
+		// if object location is null - set it to a new one
+		if (object.getLocation() == null) {
+			object.setLocation(new Location());
+		}
+		// validate location and set to default if invalid
+		Location objLocation = object.getLocation();
+		if (objLocation.getLat() == null || objLocation.getLng() == null) {
+			// if no valid location was given - set the location to Google's Headquarters -
+			// Mountain View, California
+			object.setLocation(new Location(37.4220, -122.0841));
+		}
 
-        userSystemID = userSystemID.trim(); 
-        userEmail = userEmail.trim();
-        objectSystemID =  objectSystemID.trim();
-        objectId = objectId.trim();
+		// validate active
+		if (object.getActive() == null) {
+			// default is active = false
+			object.setActive(false);
+		}
 
-        // check if any of the ID's are either empty or only whitespace
-        if ( objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
-            throw new InvalidInputException("objectSystemID and objectId can't be blank");
-        }
+		// set creation timestamp - now
+		object.setCreationTimestamp(new Date());
 
-        if ( userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-            throw new InvalidInputException("userSystemID and userEmail can't be blank");
-        }
+		// create and validate created by
+		if (object.getCreatedBy() == null) {
+			throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
+		}
+		CreatedBy cb = object.getCreatedBy();
+		if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank()
+				|| cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank()
+				|| !emailValidator.isEmailValid(cb.getUserId().getEmail())) {
+			throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
+		}
 
-        if(!entityOp.isEmpty()){
- 
-            ObjectEntity updatedObject = entityOp.get(); // original object
-            
-            // if type updated
-            if (update.getType() != null && !update.getType().isBlank() ) {
-                updatedObject.setType(update.getType());
-            }
-            // if alias updated
-            if ( update.getAlias() != null ){
-                updatedObject.setAlias(update.getAlias());
-            }
-            // if status updated
-            if ( update.getStatus() != null ){
-                updatedObject.setStatus(update.getStatus());
-            }
-            
-            // if location updated
-            if ( update.getLocation() != null ){
-                Location newLoc = update.getLocation();
-                if ( newLoc.getLng() != null && newLoc.getLat() != null ){
-                    updatedObject.setLocation(newLoc);
-                }
-            }
+		// validate if objectDetails exist or should be created
+		if (object.getObjectDetails() == null) {
+			object.setObjectDetails(new HashMap<>());
+		}
+		// INSERT object to db
+		return this.converter.toBoundary(this.objects.save(this.converter.toEntity(object)));
+	}
 
-            // if active updated
-            if ( update.getActive() != null ) {
-                updatedObject.setActive(update.getActive());
-            }
-            
-            // if object details updated
-            if ( update.getObjectDetails() != null ){
-                // add or update all objectDetails entries
-                updatedObject.setObjectDetails(update.getObjectDetails());
-            }
+	@Override
+	@Transactional
+	public ObjectBoundary update(String userSystemID, String userEmail, String objectSystemID, String objectId,
+			ObjectBoundary update) {
 
-            return this.converter.toBoundary(this.objects.save(updatedObject));
+		Optional<ObjectEntity> entityOp = this.objects.findById(objectSystemID + "@@" + objectId);
 
-        }else{
+		userSystemID = userSystemID.trim();
+		userEmail = userEmail.trim();
+		objectSystemID = objectSystemID.trim();
+		objectId = objectId.trim();
 
-            throw new ObjectNotFoundException("Couldn't find the object with object id - " + objectId);
-        }
-    }
-        
-    @Override
-    @Transactional(readOnly = true)
-    public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
-        if ( userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-            throw new InvalidInputException("userSystemID and userEmail can't be blank");
-        }
-        return this.objects
-            .findAll()
-            .stream()
-            .map(this.converter::toBoundary)
-            .toList();
-    }
+		// check if any of the ID's are either empty or only whitespace
+		if (objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
+			throw new InvalidInputException("objectSystemID and objectId can't be blank");
+		}
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
-            String objectId) {
-        
-        // check if any of the ID's are either empty or only whitespace
-        if ( objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
-            throw new InvalidInputException("objectSystemID and objectId can't be blank");
-        }
+		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
+			throw new InvalidInputException("userSystemID and userEmail can't be blank");
+		}
 
-        if ( userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-            throw new InvalidInputException("userSystemID and userEmail can't be blank");
-        }
+		if (!entityOp.isEmpty()) {
 
-        return this.objects.findById(objectSystemID + "@@" + objectId).map(this.converter::toBoundary);
-    }
+			ObjectEntity updatedObject = entityOp.get(); // original object
 
-    @Override
-    @Transactional
-    public void deleteAllObjects(String adminSystemID, String adminEmail) {
-        this.objects.deleteAll();
-    }
-    
+			// if type updated
+			if (update.getType() != null && !update.getType().isBlank()) {
+				updatedObject.setType(update.getType());
+			}
+			// if alias updated
+			if (update.getAlias() != null) {
+				updatedObject.setAlias(update.getAlias());
+			}
+			// if status updated
+			if (update.getStatus() != null) {
+				updatedObject.setStatus(update.getStatus());
+			}
+
+			// if location updated
+			if (update.getLocation() != null) {
+				Location newLoc = update.getLocation();
+				if (newLoc.getLng() != null && newLoc.getLat() != null) {
+					updatedObject.setLocation(newLoc);
+				}
+			}
+
+			// if active updated
+			if (update.getActive() != null) {
+				updatedObject.setActive(update.getActive());
+			}
+
+			// if object details updated
+			if (update.getObjectDetails() != null) {
+				// add or update all objectDetails entries
+				updatedObject.setObjectDetails(update.getObjectDetails());
+			}
+
+			return this.converter.toBoundary(this.objects.save(updatedObject));
+
+		} else {
+
+			throw new ObjectNotFoundException("Couldn't find the object with object id - " + objectId);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
+		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
+			throw new InvalidInputException("userSystemID and userEmail can't be blank");
+		}
+		return this.objects.findAll().stream().map(this.converter::toBoundary).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
+			String objectId) {
+		// check if any of the ID's are either empty or only whitespace
+		if (objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
+			throw new InvalidInputException("objectSystemID and objectId can't be blank");
+		}
+
+		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
+			throw new InvalidInputException("userSystemID and userEmail can't be blank");
+		}
+
+		try {
+			UserRole role = users.getUserRole(userSystemID, userEmail);
+
+			switch (role) {
+			case ADMIN:
+				throw new UserUnauthorizedException("Get a specific object by ID is unauthorized for admin users!");
+			case END_USER:
+				return this.objects.findById(objectSystemID + "@@" + objectId)
+                        .filter(entity -> entity.getActive()) // Check if the object is active
+                        .map(this.converter::toBoundary)
+                        .or(() -> {
+                            throw new ObjectNotFoundException("Couldn't find the object with object id - " + objectId);
+                        });
+			case OPERATOR:
+				return this.objects.findById(objectSystemID + "@@" + objectId).map(this.converter::toBoundary);
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + role);
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+
+	}
+
+	@Override
+	@Transactional
+	public void deleteAllObjects(String adminSystemID, String adminEmail) {
+		this.objects.deleteAll();
+	}
+
+	@Override
+	public List<ObjectBoundary> getAll(String userSystemID, String userEmail, int page, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ObjectBoundary[] getObjectsByLocation(double lat, double lng, double distance, String distanceUnits,
+			String userSystemID, String userEmail, int page, int size) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ObjectBoundary> getObjectsByType(String type, String userSystemID, String userEmail, int size,
+			int page) {
+		try {
+			UserRole role = users.getUserRole(userSystemID, userEmail);
+
+			switch (role) {
+			case ADMIN:
+				throw new UserUnauthorizedException("Searching an object by type is unauthorized for admin users!");
+			case END_USER:
+				return this.objects
+						.findAllByTypeIgnoreCaseAndActiveTrue(type,
+								PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
+						.stream().map(this.converter::toBoundary).toList();
+			case OPERATOR:
+				return this.objects
+						.findAllByTypeIgnoreCase(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
+						.stream().map(this.converter::toBoundary).toList();
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + role);
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ObjectBoundary> getObjectsByTypeAndStatus(String type, String status, String userSystemID,
+			String userEmail, int size, int page) {
+		try {
+			UserRole role = users.getUserRole(userSystemID, userEmail);
+
+			switch (role) {
+			case ADMIN:
+				throw new UserUnauthorizedException(
+						"Searching an object by type and status is unauthorized for admin users!");
+			case END_USER:
+				return this.objects
+						.findAllByTypeAndStatusIgnoreCaseAndActiveTrue(type, status,
+								PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
+						.stream().map(this.converter::toBoundary).toList();
+			case OPERATOR:
+				return this.objects
+						.findAllByTypeAndStatusIgnoreCase(type, status,
+								PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
+						.stream().map(this.converter::toBoundary).toList();
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + role);
+			}
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
 }

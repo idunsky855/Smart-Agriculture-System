@@ -23,7 +23,7 @@ public class ObjectEntity {
     private String objectId;
     private String type;
     private String alias;
-    private String Status;
+    private String status;
     
     private String location;
     
@@ -68,11 +68,11 @@ public class ObjectEntity {
     }
 
     public String getStatus() {
-        return Status;
+        return status;
     }
 
     public void setStatus(String status) {
-       Status = status;
+       this.status = status;
     }
 
     public String getLocation() {
@@ -123,7 +123,7 @@ public class ObjectEntity {
 
     @Override
     public String toString() {
-        return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + Status
+        return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + status
                 + ", location=" + location + ", active=" + active + ", creationTime=" + creationTime + ", createdBy="
                 + createdBy + ", objectDetails=" + objectDetails + "]";
     }

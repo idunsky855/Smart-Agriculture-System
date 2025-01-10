@@ -1,5 +1,7 @@
 package aii.presentation;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,9 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import aii.data.UserRole;
+import aii.logic.EnhancedUsersService;
 import aii.logic.NewUserBoundary;
 import aii.logic.UserBoundary;
 import aii.logic.UserId;
@@ -23,9 +28,9 @@ import aii.logic.exceptions.UserUnauthorizedException;
 @RequestMapping(path = { "/aii" })
 public class UserController {
 
-	private UsersService users;
+	private EnhancedUsersService users;
 
-	public UserController(UsersService users) {
+	public UserController(EnhancedUsersService users) {
 		this.users = users;
 	}
 
@@ -33,10 +38,8 @@ public class UserController {
 	public UserBoundary validateLoginAndGetUserDetails(@PathVariable("systemID") String systemID,
 			@PathVariable("userEmail") String userEmail) {
 
-		return this.users
-				.login(systemID, userEmail)
-				.orElseThrow(() -> new UserUnauthorizedException(
-						"Could not find user by id or user is unauthorized: " + systemID + "@@" + userEmail));
+		return this.users.login(systemID, userEmail).orElseThrow(() -> new UserUnauthorizedException(
+				"Could not find user by id or user is unauthorized: " + systemID + "@@" + userEmail));
 	}
 
 	@PostMapping(path = { "/users" }, consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
@@ -58,32 +61,30 @@ public class UserController {
 		userId.setEmail(newUser.getEmail());
 		rv.setUserId(userId);
 
-		return this.users
-				.createUser(rv);
+		return this.users.createUser(rv);
 	}
 
 	@PutMapping(path = { "/users/{systemID}/{userEmail}" }, consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public void updateUser(@PathVariable("systemID") String systemID, @PathVariable("userEmail") String userEmail,
 			@RequestBody UserBoundary update) {
 
-		this.users
-		.updateUser(systemID, userEmail, update);
+		this.users.updateUser(systemID, userEmail, update);
 	}
 
 	@GetMapping(path = { "/admin/users" }, produces = { MediaType.APPLICATION_JSON_VALUE })
-	public UserBoundary[] exportAllUsers() {
+	public UserBoundary[] exportAllUsers(@RequestParam(name = "userSystemID", required = true) String systemID,
+			@RequestParam(name = "userEmail", required = true) String email,
+			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
 
-		return this.users
-				.getAllUsers("","")
-				.toArray(new UserBoundary[0]);
+		return this.users.getAllUsers(systemID, email, size, page).toArray(new UserBoundary[0]);
 	}
 
 	@DeleteMapping(path = { "/admin/users" })
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteAllUsers() {
-
-		this.users
-		.deleteAllUsers("","");
+	public void deleteAllUsers(@RequestParam(name = "userSystemID", required = true) String userSystemID,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
+		this.users.deleteAllUsers(userSystemID, userEmail);
 	}
 
 }

@@ -12,9 +12,9 @@ import aii.logic.exceptions.ObjectNotFoundException;
 
 @RestController
 public class ObjectController {
-	private ObjectsService objects;
+	private EnhancedObjectsService objects;
 
-	public ObjectController(ObjectsService objects){
+	public ObjectController(EnhancedObjectsService objects){
 		this.objects = objects;
 	}
 
@@ -23,9 +23,10 @@ public class ObjectController {
 		produces = {MediaType.APPLICATION_JSON_VALUE})
 	public ObjectBoundary getObjectById(
 			@PathVariable("systemID") String systemID,
-			@PathVariable("id") String id) {
-		// TODO: get the userSystemID and userEmail and pass them to the service
-		return this.objects.getSpecificObject("userSystemID","userEmail",systemID,id)
+			@PathVariable("id") String id,
+			@RequestParam(name = "userSystemID", required = true) String userSystemID,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
+		return this.objects.getSpecificObject(userSystemID, userEmail, systemID, id)
 				.orElseThrow(() -> new ObjectNotFoundException("Couldn't find the object with object id - " + systemID + "@@" + id));
 	}
 
@@ -90,6 +91,35 @@ public class ObjectController {
 			throw new RuntimeException("Something went wrong while trying to erase the objects Database");	
 		}
 	}
+	
+	@GetMapping(
+			path = {"/aii/objects/search/byType/{type}"},
+			produces = {MediaType.APPLICATION_JSON_VALUE})
+		public ObjectBoundary[] getObjectsByType(
+				@PathVariable("type") String type,
+				@RequestParam(name = "userSystemID", required = true) String systemID,
+				@RequestParam(name = "userEmail", required = true) String email,
+				@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+				@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+			return this.objects	
+				.getObjectsByType(type, systemID, email, size, page)
+				.toArray(new ObjectBoundary[0]);
+		}
+	
+	@GetMapping(
+			path = {"/aii/objects/search/byTypeAndStatus/{type}/{status}"},
+			produces = {MediaType.APPLICATION_JSON_VALUE})
+		public ObjectBoundary[] getObjectsByTypeAndStatus(
+				@PathVariable("type") String type,
+				@PathVariable("status") String status,
+				@RequestParam(name = "userSystemID", required = true) String systemID,
+				@RequestParam(name = "userEmail", required = true) String email,
+				@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+				@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+			return this.objects	
+				.getObjectsByTypeAndStatus(type, status, systemID, email, size, page)
+				.toArray(new ObjectBoundary[0]);
+		}
 }
 
 
