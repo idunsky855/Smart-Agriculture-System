@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +19,7 @@ import aii.logic.utilities.EmailValidator;
 
 
 @Service
-public class CommandsServiceImplementation implements CommandsService {
+public class CommandsServiceImplementation implements EnhancedCommandService {
     private CommandsCrud commands;
     private String springApplicationName;
     private EmailValidator emailValidator;
@@ -129,14 +131,12 @@ public class CommandsServiceImplementation implements CommandsService {
 
 
     @Override
-    @Transactional(readOnly = true)
+    @Deprecated
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail) {
         // Validate admin credentials
         if (adminSystemID == null || adminEmail == null) {
             throw new InvalidInputException("ERROR - Admin credentials are required");
         }
-
-        // TODO: Validate admin credentials
 
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("ERROR - Invalid email format");
@@ -153,6 +153,27 @@ public class CommandsServiceImplementation implements CommandsService {
         }
 
         return commandBoundaries;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail, int page, int size) {
+        // Validate admin credentials
+        if (adminSystemID == null || adminEmail == null) {
+            throw new InvalidInputException("ERROR - Admin credentials are required");
+        }
+
+        if (!emailValidator.isEmailValid(adminEmail)) {
+            throw new InvalidInputException("ERROR - Invalid email format");
+        }
+
+        return this.commands
+            .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
+            .stream()
+            .skip(page * size)
+            .limit(size)
+            .map(CommandBoundary::new)
+            .toList();
     }
 
     @Override
