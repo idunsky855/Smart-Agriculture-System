@@ -70,12 +70,7 @@ public class CommandController {
     public void deleteAllCommands(
         @RequestParam(name = "userSystemID", required=true) String userSystemID,
         @RequestParam(name = "userEmail", required=true) String userEmail) {
-        try {
-            this.commands.deleteAllCommands(userSystemID, userEmail);
-            System.out.println("[INFO] - All commands have been deleted.");
-        } catch (Exception e) {
-            System.out.println("ERROR - Could not delete all commands due to: " + e.getMessage());
-            throw new RuntimeException("ERROR - Could not delete all commands");
-        }
+        this.commands.deleteAllCommands(userSystemID, userEmail);
+        System.out.println("[INFO] - All commands have been deleted.");
     }
 }

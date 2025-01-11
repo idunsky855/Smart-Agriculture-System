@@ -13,9 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import aii.dal.CommandsCrud;
 import aii.data.CommandEntity;
+import aii.data.UserRole;
 import aii.logic.exceptions.InvalidCommandException;
 import aii.logic.exceptions.InvalidInputException;
+import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
+
+
 
 
 @Service
@@ -23,11 +27,12 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     private CommandsCrud commands;
     private String springApplicationName;
     private EmailValidator emailValidator;
+    private EnhancedUsersService users;
 
 
-
-    public CommandsServiceImplementation(CommandsCrud commands){
+    public CommandsServiceImplementation(CommandsCrud commands, EnhancedUsersService users) {
         this.commands = commands;
+        this.users = users;
         emailValidator = new EmailValidator();
     }
 
@@ -109,6 +114,14 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidCommandException("ERROR - UserId - SystemID is empty");
         }
 
+        // Validate user's permission:
+        UserRole role = this.users.getUserRole(newCommand.getInvokedBy().getUserId().getSystemID(),
+                newCommand.getInvokedBy().getUserId().getEmail());
+
+        if (role != UserRole.END_USER) {
+            throw new InvalidCommandException("ERROR - User does not have permission to invoke commands");
+        }
+
         CommandEntity commandEntity = new CommandEntity();
 
         CommandId commandId = new CommandId(this.springApplicationName, UUID.randomUUID().toString());
@@ -142,6 +155,11 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidInputException("ERROR - Invalid email format");
         }
 
+        UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
+
+        if (role != UserRole.ADMIN) {
+            throw new UserUnauthorizedException("ERROR - User does not have permission to view all commands");
+        }
 
         // Fetch all command entities from the DB
         List<CommandEntity> commandEntities = this.commands.findAll();
@@ -167,6 +185,12 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidInputException("ERROR - Invalid email format");
         }
 
+        UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
+
+        if (role != UserRole.ADMIN) {
+            throw new UserUnauthorizedException("ERROR - User does not have permission to view all commands");
+        }
+
         return this.commands
             .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
             .stream()
@@ -183,12 +207,15 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidInputException("[ERROR] - Admin credentials are required");
         }
 
-        // TODO: Validate admin credentials
-
         if (!emailValidator.isEmailValid(adminEmail)) {
             throw new InvalidInputException("[ERROR] - Invalid email format");
         }
 
+        UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
+
+        if (role != UserRole.ADMIN) {
+            throw new UserUnauthorizedException("[ERROR] - User does not have permission to delete all commands");
+        }
 
         this.commands.deleteAll();
         System.out.println("[WARN] - All commands deleted by admin: " + adminSystemID + " / " + adminEmail);

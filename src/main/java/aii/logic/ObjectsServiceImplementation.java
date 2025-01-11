@@ -397,7 +397,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
                 case ADMIN:
                     throw new UserUnauthorizedException("Searching an object by alias is unauthorized for admin users!");
 
-                case OPERATOR, END_USER:
+                case END_USER:
+                    return this.objects
+                            .findAllByAliasIgnoreCaseAndActiveTrue(alias,
+                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
+                            .stream().map(this.converter::toBoundary).toList();
+
+                case OPERATOR:
                     return this.objects
                             .findAllByAliasIgnoreCase(alias,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
@@ -421,7 +427,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
                 case ADMIN:
                     throw new UserUnauthorizedException("Searching an object by alias pattern is unauthorized for admin users!");
 
-                case OPERATOR, END_USER:
+                case END_USER:
+                    return this.objects
+                            .findAllByAliasLikeIgnoreCaseAndActiveTrue(pattern,
+                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
+                            .stream().map(this.converter::toBoundary).toList();
+
+                case OPERATOR:
                     return this.objects
                             .findAllByAliasLikeIgnoreCase(pattern,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
