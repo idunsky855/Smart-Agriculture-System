@@ -1,8 +1,8 @@
 package aii.logic;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +28,14 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     private String springApplicationName;
     private EmailValidator emailValidator;
     private EnhancedUsersService users;
+    private EnhancedObjectsService objects;
 
 
-    public CommandsServiceImplementation(CommandsCrud commands, EnhancedUsersService users) {
+
+    public CommandsServiceImplementation(CommandsCrud commands, EnhancedUsersService users, EnhancedObjectsService objects) {
         this.commands = commands;
         this.users = users;
+        this.objects = objects;
         emailValidator = new EmailValidator();
     }
 
@@ -122,8 +125,14 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidCommandException("ERROR - User does not have permission to invoke commands");
         }
 
-        CommandEntity commandEntity = new CommandEntity();
+        ObjectId obj = newCommand.getTargetObject().getObjectId();
+        UserId ui = newCommand.getInvokedBy().getUserId();
 
+        // Check for object existence and active is true (this method will throw if the conditions are not met.)
+        Optional<ObjectBoundary> op = this.objects.getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId());
+
+        // Passed all validations, create and save the command entity:
+        CommandEntity commandEntity = new CommandEntity();
         CommandId commandId = new CommandId(this.springApplicationName, UUID.randomUUID().toString());
         commandEntity.setCommandId(commandId);
 
@@ -146,6 +155,8 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     @Override
     @Deprecated
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail) {
+        throw new UnsupportedOperationException("ERROR - Deprecated method");
+        /*
         // Validate admin credentials
         if (adminSystemID == null || adminEmail == null) {
             throw new InvalidInputException("ERROR - Admin credentials are required");
@@ -171,6 +182,7 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         }
 
         return commandBoundaries;
+        */
     }
 
     @Override
