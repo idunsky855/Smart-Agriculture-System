@@ -52,11 +52,14 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		if (object == null) {
 			throw new InvalidInputException("object can't be NULL!");
 		}
-		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-			throw new InvalidInputException("userSystemID and userEmail can't be blank");
-		}
 
-		// create id for the new object
+		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+        if (role != UserRole.OPERATOR) {
+            throw new UserUnauthorizedException("Only operators are authorized to create new objects!");
+        }
+
+		// Passed validaitons - create id for the new object:
 		ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
 		object.setObjectId(objectId);
 
@@ -132,9 +135,11 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			throw new InvalidInputException("objectSystemID and objectId can't be blank");
 		}
 
-		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-			throw new InvalidInputException("userSystemID and userEmail can't be blank");
-		}
+		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+        if (role != UserRole.OPERATOR) {
+            throw new UserUnauthorizedException("Only operators are authorized to update objects!");
+        }
 
 		if (!entityOp.isEmpty()) {
 
