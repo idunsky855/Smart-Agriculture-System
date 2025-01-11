@@ -157,4 +157,16 @@ public class ObjectController {
 		return this.objects.getObjectsByLocation(lat, lng, distance, distanceUnits, systemID, email, page, size)
 				.toArray(new ObjectBoundary[0]);
 	}
+
+	@GetMapping(path = { "/aii/objects/search/byAliasPattern/{pattern}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ObjectBoundary[] getObjectsByAliasPattern(
+			@PathVariable("pattern") String pattern,
+			@RequestParam(name = "userSystemID", required = true) String systemID,
+			@RequestParam(name = "userEmail", required = true) String email,
+			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		return this.objects
+				.getObjectsByLAliasPattern(pattern, systemID, email, size, page)
+				.toArray(new ObjectBoundary[0]);
+	}
 }

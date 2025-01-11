@@ -406,4 +406,28 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ObjectBoundary> getObjectsByLAliasPattern(String pattern, String userSystemID, String userEmail, int size, int page) {
+        try {
+            UserRole role = users.getUserRole(userSystemID, userEmail);
+
+            switch (role) {
+                case ADMIN:
+                    throw new UserUnauthorizedException("Searching an object by alias pattern is unauthorized for admin users!");
+
+                case OPERATOR, END_USER:
+                    return this.objects
+                            .findAllByAliasLikeIgnoreCase(pattern,
+                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
+                            .stream().map(this.converter::toBoundary).toList();
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + role);
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 }
