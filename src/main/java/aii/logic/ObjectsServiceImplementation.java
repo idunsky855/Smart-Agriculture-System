@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import aii.dal.ObjectsCrud;
 import aii.data.ObjectEntity;
 import aii.data.UserRole;
+import aii.logic.converters.ObjectConverter;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.ObjectNotFoundException;
 import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
-import aii.logic.converters.ObjectConverter;
 
 @Service
 public class ObjectsServiceImplementation implements EnhancedObjectsService {
@@ -381,5 +381,29 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			throw e;
 		}
 	}
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ObjectBoundary> getObjectsByAlias(String alias, String userSystemID, String userEmail, int size, int page) {
+        try {
+            UserRole role = users.getUserRole(userSystemID, userEmail);
+
+            switch (role) {
+                case ADMIN:
+                    throw new UserUnauthorizedException("Searching an object by alias is unauthorized for admin users!");
+
+                case OPERATOR, END_USER:
+                    return this.objects
+                            .findAllByAliasIgnoreCase(alias,
+                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
+                            .stream().map(this.converter::toBoundary).toList();
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + role);
+            }
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
 }

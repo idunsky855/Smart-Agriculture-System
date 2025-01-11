@@ -14,4 +14,7 @@ public interface EnhancedObjectsService extends ObjectsService {
 
     public List<ObjectBoundary> getObjectsByTypeAndStatus(String type, String status, String userSystemID,
             String userEmail, int size, int page);
+
+    public List<ObjectBoundary> getObjectsByAlias(String alias, String userSystemID, String userEmail, int size, int page);
+
 }

@@ -21,6 +21,8 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 	public List<ObjectEntity> findAllByTypeAndStatusIgnoreCase(@Param("type") String type,
 			@Param("status") String status, Pageable pageable);
 
+        public List<ObjectEntity> findAllByAliasIgnoreCase(@Param("alias") String alias, Pageable pageable);
+
 	public List<ObjectEntity> findAllByActiveTrue(Pageable pageable);
 
 	@Query(value = "SELECT *, " +
