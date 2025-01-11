@@ -18,26 +18,26 @@ import jakarta.persistence.TemporalType;
 @Entity
 @Table(name = "OBJECTS")
 public class ObjectEntity {
-    
+
     @Id
     private String objectId;
     private String type;
     private String alias;
     private String status;
-    
-    private String location;
-    
+
+    private double lat;
+    private double lng;
+
     private boolean active;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
-    
-    private String createdBy;
-    
-    @Lob
-    @Convert( converter = MapToStringConverter.class)
-    private Map<String, Object> objectDetails;
 
+    private String createdBy;
+
+    @Lob
+    @Convert(converter = MapToStringConverter.class)
+    private Map<String, Object> objectDetails;
 
     public String getObjectId() {
         return objectId;
@@ -47,7 +47,7 @@ public class ObjectEntity {
         this.objectId = objectId;
     }
 
-    public void setObjectId(ObjectId objectId){
+    public void setObjectId(ObjectId objectId) {
         this.objectId = objectId.getSystemID() + "@@" + objectId.getId();
     }
 
@@ -72,19 +72,28 @@ public class ObjectEntity {
     }
 
     public void setStatus(String status) {
-       this.status = status;
+        this.status = status;
     }
 
-    public String getLocation() {
-        return location;
+    public double getLat() {
+        return lat;
     }
-    
-    public void setLocation(String location) {
-        this.location = location;
+
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
     }
 
     public void setLocation(Location location) {
-        this.location = location.getLat() + "@@" + location.getLng();
+        this.lat = location.getLat();
+        this.lng = location.getLng();
     }
 
     public boolean getActive() {
@@ -103,7 +112,7 @@ public class ObjectEntity {
         this.creationTime = creationTime;
     }
 
-    public String getCreatedBy(){
+    public String getCreatedBy() {
         return createdBy;
     }
 
@@ -112,7 +121,7 @@ public class ObjectEntity {
     }
 
     public Map<String, Object> getObjectDetails() {
-        if(this.objectDetails == null)
+        if (this.objectDetails == null)
             this.objectDetails = new HashMap<String, Object>();
         return objectDetails;
     }
@@ -124,8 +133,8 @@ public class ObjectEntity {
     @Override
     public String toString() {
         return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + status
-                + ", location=" + location + ", active=" + active + ", creationTime=" + creationTime + ", createdBy="
+                + ", location=[lng = " + lng + ", lat = " + lat + "], active=" + active + ", creationTime="
+                + creationTime + ", createdBy="
                 + createdBy + ", objectDetails=" + objectDetails + "]";
     }
-    
 }

@@ -28,6 +28,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	private ObjectConverter converter;
 	private EmailValidator emailValidator;
 	private EnhancedUsersService users;
+	private final Float MILES_TO_KMS = 1.609344f;
 
 	public ObjectsServiceImplementation(ObjectsCrud objects, ObjectConverter converter, EnhancedUsersService users) {
 		this.objects = objects;
@@ -180,12 +181,18 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	}
 
 	@Override
+	@Deprecated
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
-		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
-			throw new InvalidInputException("userSystemID and userEmail can't be blank");
-		}
-		return this.objects.findAll().stream().map(this.converter::toBoundary).toList();
+		throw new RuntimeException("Deprecated operation - use getAll that uses pagination");
+		// if (userSystemID == null || userEmail == null || userSystemID.isBlank() ||
+		// userEmail.isBlank()) {
+		// throw new InvalidInputException("userSystemID and userEmail can't be blank");
+		// }
+		// return this.objects.findAll()
+		// .stream()
+		// .map(this.converter::toBoundary)
+		// .toList();
 	}
 
 	@Override
@@ -205,19 +212,20 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			UserRole role = users.getUserRole(userSystemID, userEmail);
 
 			switch (role) {
-			case ADMIN:
-				throw new UserUnauthorizedException("Get a specific object by ID is unauthorized for admin users!");
-			case END_USER:
-				return this.objects.findById(objectSystemID + "@@" + objectId)
-                        .filter(entity -> entity.getActive()) // Check if the object is active
-                        .map(this.converter::toBoundary)
-                        .or(() -> {
-                            throw new ObjectNotFoundException("Couldn't find the object with object id - " + objectId);
-                        });
-			case OPERATOR:
-				return this.objects.findById(objectSystemID + "@@" + objectId).map(this.converter::toBoundary);
-			default:
-				throw new IllegalArgumentException("Unexpected value: " + role);
+				case ADMIN:
+					throw new UserUnauthorizedException("Get a specific object by ID is unauthorized for admin users!");
+				case END_USER:
+					return this.objects.findById(objectSystemID + "@@" + objectId)
+							.filter(entity -> entity.getActive()) // Check if the object is active
+							.map(this.converter::toBoundary)
+							.or(() -> {
+								throw new ObjectNotFoundException(
+										"Couldn't find the object with object id - " + objectId);
+							});
+				case OPERATOR:
+					return this.objects.findById(objectSystemID + "@@" + objectId).map(this.converter::toBoundary);
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + role);
 			}
 
 		} catch (Exception e) {
@@ -229,20 +237,90 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Override
 	@Transactional
 	public void deleteAllObjects(String adminSystemID, String adminEmail) {
-		this.objects.deleteAll();
+		if (users.getUserRole(adminSystemID, adminEmail) == UserRole.ADMIN) {
+			this.objects.deleteAll();
+			return;
+		}
+		throw new UserUnauthorizedException("Only Admins are authorized to delete all objects!");
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail, int page, int size) {
-		// TODO Auto-generated method stub
-		return null;
+
+		List<ObjectBoundary> rv = null;
+		UserRole role = users.getUserRole(userSystemID, userEmail);
+		if (role == UserRole.END_USER) {
+			rv = this.objects
+					.findAllByActiveTrue(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
+					.stream()
+					.map(this.converter::toBoundary)
+					.toList();
+		} else if (role == UserRole.OPERATOR) {
+			rv = this.objects
+					.findAll(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
+					.stream()
+					.map(this.converter::toBoundary)
+					.toList();
+		} else {
+			throw new UserUnauthorizedException("Only operators and end users are allowed to use this!");
+		}
+		return rv;
 	}
 
 	@Override
-	public ObjectBoundary[] getObjectsByLocation(double lat, double lng, double distance, String distanceUnits,
+	@Transactional(readOnly = true)
+	public List<ObjectBoundary> getObjectsByLocation(double lat, double lng, double distance, String distanceUnits,
 			String userSystemID, String userEmail, int page, int size) {
-		// TODO Auto-generated method stub
-		return null;
+		if (distance < 0.0) {
+			throw new InvalidInputException("Distance must be positive!");
+		}
+		UserRole role = users.getUserRole(userSystemID, userEmail);
+		switch (role) {
+			case UserRole.END_USER:
+				// find only active objects
+				if (distanceUnits.equalsIgnoreCase("neutral")) {
+					// already sorted by query
+					return this.objects
+							.findAllWithinRadiusAndActiveIsTrue(lat, lng, distance, PageRequest.of(page, size))
+							.stream()
+							.map(this.converter::toBoundary)
+							.toList();
+				} else {
+					// already sorted by query
+					// convert to kms for calculation
+					if (distanceUnits.equalsIgnoreCase("miles"))
+						distance *= MILES_TO_KMS;
+					return this.objects
+							.findAllWithinRadiusKmAndActiveIsTrue(lat, lng, distance, PageRequest.of(page, size))
+							.stream()
+							.map(this.converter::toBoundary)
+							.toList();
+				}
+			case UserRole.OPERATOR:
+				// find all objects
+				if (distanceUnits.equalsIgnoreCase("neutral")) {
+					// already sorted by query
+					return this.objects
+							.findAllWithinRadius(lat, lng, distance, PageRequest.of(page, size))
+							.stream()
+							.map(this.converter::toBoundary)
+							.toList();
+				} else {
+					// already sorted by query
+					// convert to kms for calculation
+					if (distanceUnits.equalsIgnoreCase("miles"))
+						distance *= MILES_TO_KMS;
+					return this.objects
+							.findAllWithinRadiusKm(lat, lng, distance, PageRequest.of(page, size))
+							.stream()
+							.map(this.converter::toBoundary)
+							.toList();
+				}
+			default:
+				throw new UserUnauthorizedException(
+						"Only end users and operators are authorized searching by location!");
+		}
 	}
 
 	@Override
@@ -253,19 +331,20 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			UserRole role = users.getUserRole(userSystemID, userEmail);
 
 			switch (role) {
-			case ADMIN:
-				throw new UserUnauthorizedException("Searching an object by type is unauthorized for admin users!");
-			case END_USER:
-				return this.objects
-						.findAllByTypeIgnoreCaseAndActiveTrue(type,
-								PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
-						.stream().map(this.converter::toBoundary).toList();
-			case OPERATOR:
-				return this.objects
-						.findAllByTypeIgnoreCase(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
-						.stream().map(this.converter::toBoundary).toList();
-			default:
-				throw new IllegalArgumentException("Unexpected value: " + role);
+				case ADMIN:
+					throw new UserUnauthorizedException("Searching an object by type is unauthorized for admin users!");
+				case END_USER:
+					return this.objects
+							.findAllByTypeIgnoreCaseAndActiveTrue(type,
+									PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
+							.stream().map(this.converter::toBoundary).toList();
+				case OPERATOR:
+					return this.objects
+							.findAllByTypeIgnoreCase(type,
+									PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
+							.stream().map(this.converter::toBoundary).toList();
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + role);
 			}
 
 		} catch (Exception e) {
@@ -281,21 +360,21 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			UserRole role = users.getUserRole(userSystemID, userEmail);
 
 			switch (role) {
-			case ADMIN:
-				throw new UserUnauthorizedException(
-						"Searching an object by type and status is unauthorized for admin users!");
-			case END_USER:
-				return this.objects
-						.findAllByTypeAndStatusIgnoreCaseAndActiveTrue(type, status,
-								PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
-						.stream().map(this.converter::toBoundary).toList();
-			case OPERATOR:
-				return this.objects
-						.findAllByTypeAndStatusIgnoreCase(type, status,
-								PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
-						.stream().map(this.converter::toBoundary).toList();
-			default:
-				throw new IllegalArgumentException("Unexpected value: " + role);
+				case ADMIN:
+					throw new UserUnauthorizedException(
+							"Searching an object by type and status is unauthorized for admin users!");
+				case END_USER:
+					return this.objects
+							.findAllByTypeAndStatusIgnoreCaseAndActiveTrue(type, status,
+									PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
+							.stream().map(this.converter::toBoundary).toList();
+				case OPERATOR:
+					return this.objects
+							.findAllByTypeAndStatusIgnoreCase(type, status,
+									PageRequest.of(page, size, Direction.ASC, "type", "status", "objectId"))
+							.stream().map(this.converter::toBoundary).toList();
+				default:
+					throw new IllegalArgumentException("Unexpected value: " + role);
 			}
 
 		} catch (Exception e) {

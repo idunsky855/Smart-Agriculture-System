@@ -9,6 +9,7 @@ public interface ObjectsService {
 	public ObjectBoundary update(String userSystemID, String userEmail, String objectSystemID, String objectId,
 			ObjectBoundary update);
 
+	@Deprecated
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail);
 
 	public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
