@@ -1,12 +1,23 @@
 package aii.presentation;
 
-import java.util.*;
+import java.util.Arrays;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import aii.logic.*;
+import aii.logic.CreatedBy;
+import aii.logic.EnhancedObjectsService;
+import aii.logic.ObjectBoundary;
+import aii.logic.UserId;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.ObjectNotFoundException;
 import aii.logic.exceptions.UserUnauthorizedException;
@@ -105,6 +116,19 @@ public class ObjectController {
 				.toArray(new ObjectBoundary[0]);
 	}
 
+	@GetMapping(path = { "/aii/objects/search/byAlias/{alias}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ObjectBoundary[] getObjectsByAlias(
+			@PathVariable("alias") String alias,
+			@RequestParam(name = "userSystemID", required = true) String systemID,
+			@RequestParam(name = "userEmail", required = true) String email,
+			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		return this.objects
+				.getObjectsByAlias(alias, systemID, email, size, page)
+				.toArray(new ObjectBoundary[0]);
+	}
+
+
 	@GetMapping(path = { "/aii/objects/search/byTypeAndStatus/{type}/{status}" }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getObjectsByTypeAndStatus(
@@ -131,6 +155,18 @@ public class ObjectController {
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size) {
 
 		return this.objects.getObjectsByLocation(lat, lng, distance, distanceUnits, systemID, email, page, size)
+				.toArray(new ObjectBoundary[0]);
+	}
+
+	@GetMapping(path = { "/aii/objects/search/byAliasPattern/{pattern}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ObjectBoundary[] getObjectsByAliasPattern(
+			@PathVariable("pattern") String pattern,
+			@RequestParam(name = "userSystemID", required = true) String systemID,
+			@RequestParam(name = "userEmail", required = true) String email,
+			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		return this.objects
+				.getObjectsByLAliasPattern(pattern, systemID, email, size, page)
 				.toArray(new ObjectBoundary[0]);
 	}
 }
