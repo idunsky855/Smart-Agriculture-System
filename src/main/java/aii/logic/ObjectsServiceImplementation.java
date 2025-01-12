@@ -135,6 +135,10 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			throw new InvalidInputException("objectSystemID and objectId can't be blank");
 		}
 
+		if (!emailValidator.isEmailValid(userEmail)) {
+			throw new InvalidInputException("Invalid email format");
+		}
+
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
         if (role != UserRole.OPERATOR) {

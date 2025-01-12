@@ -81,10 +81,11 @@ public class ObjectController {
 	public void updateObject(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id,
+			@RequestParam(name = "userSystemID", required = true) String userSystemID,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestBody ObjectBoundary update) {
 
-		// TODO: get the userSystemID and userEmail and pass them to the service
-		this.objects.update("userSystemID", "userEmail", systemID, id, update);
+		this.objects.update(userSystemID, userEmail, systemID, id, update);
 	}
 
 	@DeleteMapping(path = { "/aii/admin/objects" })
