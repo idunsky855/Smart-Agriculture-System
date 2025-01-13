@@ -35,7 +35,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 			"SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) AS distance " +
 			"FROM objects " +
 			"WHERE SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) <= :radius AND active = TRUE "
-			+ "ORDER BY distance", nativeQuery = true)
+			+ "ORDER BY distance ASC, object_id ASC", nativeQuery = true)
 	public List<ObjectEntity> findAllWithinRadiusAndActiveIsTrue(@Param("centerLat") double centerLat,
 			@Param("centerLng") double centerLng,
 			@Param("radius") double radius,
@@ -45,7 +45,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 			"SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) AS distance " +
 			"FROM objects " +
 			"WHERE SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) <= :radius " +
-			"ORDER BY distance", nativeQuery = true)
+			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
 	public List<ObjectEntity> findAllWithinRadius(@Param("centerLat") double centerLat,
 			@Param("centerLng") double centerLng,
 			@Param("radius") double radius,
@@ -57,7 +57,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 			"FROM objects " +
 			"WHERE (6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) <= :radius "
 			+
-			"ORDER BY distance", nativeQuery = true)
+			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
 	public List<ObjectEntity> findAllWithinRadiusKm(@Param("centerLat") double centerLat,
 			@Param("centerLng") double centerLng,
 			@Param("radius") double radius, Pageable pageable); // KILOMETERS
@@ -68,7 +68,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 			"FROM objects " +
 			"WHERE (6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) <= :radius AND active = TRUE "
 			+
-			"ORDER BY distance", nativeQuery = true)
+			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
 	public List<ObjectEntity> findAllWithinRadiusKmAndActiveIsTrue(@Param("centerLat") double centerLat,
 			@Param("centerLng") double centerLng,
 			@Param("radius") double radius, Pageable pageable); // KILOMETERS and active
