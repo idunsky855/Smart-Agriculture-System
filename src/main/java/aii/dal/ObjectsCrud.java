@@ -21,13 +21,13 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 	public List<ObjectEntity> findAllByTypeAndStatusIgnoreCase(@Param("type") String type,
 			@Param("status") String status, Pageable pageable);
 
-    public List<ObjectEntity> findAllByAliasIgnoreCase(@Param("alias") String alias, Pageable pageable);
+    public List<ObjectEntity> findAllByAlias(@Param("alias") String alias, Pageable pageable);
 
-    public List<ObjectEntity> findAllByAliasLikeIgnoreCase(@Param("pattern") String pattern, Pageable pageable);
+    public List<ObjectEntity> findAllByAliasLike(@Param("pattern") String pattern, Pageable pageable);
 
-	public List<ObjectEntity> findAllByAliasIgnoreCaseAndActiveTrue(@Param("alias") String alias, Pageable pageable);
+	public List<ObjectEntity> findAllByAliasAndActiveTrue(@Param("alias") String alias, Pageable pageable);
 
-	public List<ObjectEntity> findAllByAliasLikeIgnoreCaseAndActiveTrue(@Param("pattern") String pattern, Pageable pageable);
+	public List<ObjectEntity> findAllByAliasLikeAndActiveTrue(@Param("pattern") String pattern, Pageable pageable);
 
 	public List<ObjectEntity> findAllByActiveTrue(Pageable pageable);
 
