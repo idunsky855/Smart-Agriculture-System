@@ -32,6 +32,7 @@ Thumbs.db
 .classpath
 .project
 .settings/
+.metadata/
 
 ## NetBeans
 /nbproject/private/
