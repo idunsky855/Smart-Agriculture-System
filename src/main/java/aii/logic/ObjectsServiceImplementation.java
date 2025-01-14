@@ -403,13 +403,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
                 case END_USER:
                     return this.objects
-                            .findAllByAliasIgnoreCaseAndActiveTrue(alias,
+                            .findAllByAliasAndActiveTrue(alias,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
                             .stream().map(this.converter::toBoundary).toList();
 
                 case OPERATOR:
                     return this.objects
-                            .findAllByAliasIgnoreCase(alias,
+                            .findAllByAlias(alias,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
                             .stream().map(this.converter::toBoundary).toList();
                 default:
@@ -433,13 +433,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
                 case END_USER:
                     return this.objects
-                            .findAllByAliasLikeIgnoreCaseAndActiveTrue(pattern,
+                            .findAllByAliasLikeAndActiveTrue(pattern,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
                             .stream().map(this.converter::toBoundary).toList();
 
                 case OPERATOR:
                     return this.objects
-                            .findAllByAliasLikeIgnoreCase(pattern,
+                            .findAllByAliasLike(pattern,
                                     PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
                             .stream().map(this.converter::toBoundary).toList();
                 default:
