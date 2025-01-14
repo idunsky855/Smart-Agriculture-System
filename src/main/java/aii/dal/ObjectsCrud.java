@@ -31,45 +31,86 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 
 	public List<ObjectEntity> findAllByActiveTrue(Pageable pageable);
 
-	@Query(value = "SELECT *, " +
-			"SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) AS distance " +
-			"FROM objects " +
-			"WHERE SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) <= :radius AND active = TRUE "
-			+ "ORDER BY distance ASC, object_id ASC", nativeQuery = true)
-	public List<ObjectEntity> findAllWithinRadiusAndActiveIsTrue(@Param("centerLat") double centerLat,
-			@Param("centerLng") double centerLng,
-			@Param("radius") double radius,
-			Pageable pageable); // NEUTRAL and active
+	@Query(value = """
+		SELECT *, 
+			CASE :unit
+				WHEN 'NEUTRAL' THEN SQRT(POWER((:centerLat - lat), 2) + POWER((:centerLng - lng), 2))
+				WHEN 'KILOMETERS' THEN 6371 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+				WHEN 'MILES' THEN 3958.8 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+			END AS distance
+		FROM objects
+		WHERE
+			CASE :unit
+				WHEN 'NEUTRAL' THEN SQRT(POWER((:centerLat - lat), 2) + POWER((:centerLng - lng), 2))
+				WHEN 'KILOMETERS' THEN 6371 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+				WHEN 'MILES' THEN 3958.8 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+			END <= :radius
+		ORDER BY distance ASC, object_id ASC
+		""", nativeQuery = true)
+	List<ObjectEntity> findAllWithinRadius(
+		@Param("centerLat") double centerLat,
+		@Param("centerLng") double centerLng,
+		@Param("radius") double radius,
+		@Param("unit") String unit,  // NEUTRAL, KILOMETERS, MILES
+		Pageable pageable
+	);
 
-	@Query(value = "SELECT *, " +
-			"SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) AS distance " +
-			"FROM objects " +
-			"WHERE SQRT(POW((:centerLat - lat), 2) + POW((:centerLng - lng), 2)) <= :radius " +
-			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
-	public List<ObjectEntity> findAllWithinRadius(@Param("centerLat") double centerLat,
-			@Param("centerLng") double centerLng,
-			@Param("radius") double radius,
-			Pageable pageable); // NEUTRAL
-
-	@Query(value = "SELECT *, " +
-			"(6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) AS distance "
-			+
-			"FROM objects " +
-			"WHERE (6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) <= :radius "
-			+
-			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
-	public List<ObjectEntity> findAllWithinRadiusKm(@Param("centerLat") double centerLat,
-			@Param("centerLng") double centerLng,
-			@Param("radius") double radius, Pageable pageable); // KILOMETERS
-
-	@Query(value = "SELECT *, " +
-			"(6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) AS distance "
-			+
-			"FROM objects " +
-			"WHERE (6371 * ACOS(COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) * COS(RADIANS(lng) - RADIANS(:centerLng)) + SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat)))) <= :radius AND active = TRUE "
-			+
-			"ORDER BY distance ASC, object_id ASC", nativeQuery = true)
-	public List<ObjectEntity> findAllWithinRadiusKmAndActiveIsTrue(@Param("centerLat") double centerLat,
-			@Param("centerLng") double centerLng,
-			@Param("radius") double radius, Pageable pageable); // KILOMETERS and active
+	@Query(value = """
+		SELECT *, 
+			CASE :unit
+				WHEN 'NEUTRAL' THEN SQRT(POWER((:centerLat - lat), 2) + POWER((:centerLng - lng), 2))
+				WHEN 'KILOMETERS' THEN 6371 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+				WHEN 'MILES' THEN 3958.8 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+			END AS distance
+		FROM objects
+		WHERE
+			CASE :unit
+				WHEN 'NEUTRAL' THEN SQRT(POWER((:centerLat - lat), 2) + POWER((:centerLng - lng), 2))
+				WHEN 'KILOMETERS' THEN 6371 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+				WHEN 'MILES' THEN 3958.8 * ACOS(
+					COS(RADIANS(:centerLat)) * COS(RADIANS(lat)) *
+					COS(RADIANS(lng) - RADIANS(:centerLng)) +
+					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
+				)
+			END <= :radius
+			AND active = TRUE
+		ORDER BY distance ASC, object_id ASC
+		""", nativeQuery = true)
+	List<ObjectEntity> findAllWithinRadiusAndActiveIsTrue(
+		@Param("centerLat") double centerLat,
+		@Param("centerLng") double centerLng,
+		@Param("radius") double radius,
+		@Param("unit") String unit,  // NEUTRAL, KILOMETERS, MILES
+		Pageable pageable
+	);
+	
+	
 }

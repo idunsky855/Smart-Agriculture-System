@@ -284,48 +284,31 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		if (distance < 0.0) {
 			throw new InvalidInputException("Distance must be positive!");
 		}
+
+		if (!distanceUnits.equals("NEUTRAL") && !distanceUnits.equals("MILES") && !distanceUnits.equals("KILOMETERS")){
+			throw new InvalidInputException("Distance Units must be one of NEUTRAL, KILOMETERS and MILES!");
+		}
+
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 		switch (role) {
 			case UserRole.END_USER:
 				// find only active objects
-				if (distanceUnits.equalsIgnoreCase("neutral")) {
-					// already sorted by query
-					return this.objects
-							.findAllWithinRadiusAndActiveIsTrue(lat, lng, distance, PageRequest.of(page, size))
-							.stream()
-							.map(this.converter::toBoundary)
-							.toList();
-				} else {
-					// already sorted by query
-					// convert to kms for calculation
-					if (distanceUnits.equalsIgnoreCase("miles"))
-						distance *= MILES_TO_KMS;
-					return this.objects
-							.findAllWithinRadiusKmAndActiveIsTrue(lat, lng, distance, PageRequest.of(page, size))
-							.stream()
-							.map(this.converter::toBoundary)
-							.toList();
-				}
+				// already sorted by query
+				return this.objects
+						.findAllWithinRadiusAndActiveIsTrue(lat, lng, distance, distanceUnits, PageRequest.of(page, size))
+						.stream()
+						.map(this.converter::toBoundary)
+						.toList();
+
 			case UserRole.OPERATOR:
 				// find all objects
-				if (distanceUnits.equalsIgnoreCase("neutral")) {
-					// already sorted by query
-					return this.objects
-							.findAllWithinRadius(lat, lng, distance, PageRequest.of(page, size))
-							.stream()
-							.map(this.converter::toBoundary)
-							.toList();
-				} else {
-					// already sorted by query
-					// convert to kms for calculation
-					if (distanceUnits.equalsIgnoreCase("miles"))
-						distance *= MILES_TO_KMS;
-					return this.objects
-							.findAllWithinRadiusKm(lat, lng, distance, PageRequest.of(page, size))
-							.stream()
-							.map(this.converter::toBoundary)
-							.toList();
-				}
+				// already sorted by query
+				return this.objects
+						.findAllWithinRadius(lat, lng, distance, distanceUnits, PageRequest.of(page, size))
+						.stream()
+						.map(this.converter::toBoundary)
+						.toList();
+			
 			default:
 				throw new UserUnauthorizedException(
 						"Only end users and operators are authorized searching by location!");
