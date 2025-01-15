@@ -56,7 +56,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
 		if (role != UserRole.OPERATOR) {
-			throw new UserUnauthorizedException("Only operators are authorized to create new objects!");
+			throw new UserUnauthorizedException("User is not authorized to create objects!");
 		}
 
 		// Passed validaitons - create id for the new object:
@@ -193,16 +193,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Deprecated
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
-		
 		throw new RuntimeException("Deprecated operation - use getAll that uses pagination");
-		// if (userSystemID == null || userEmail == null || userSystemID.isBlank() ||
-		// userEmail.isBlank()) {
-		// throw new InvalidInputException("userSystemID and userEmail can't be blank");
-		// }
-		// return this.objects.findAll()
-		// .stream()
-		// .map(this.converter::toBoundary)
-		// .toList();
 	}
 
 	@Override
@@ -256,7 +247,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			rv = this.objects.findAll(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId")).stream()
 					.map(this.converter::toBoundary).toList();
 		} else {
-			throw new UserUnauthorizedException("Only operators and end users are allowed to use this!");
+			throw new UserUnauthorizedException("User is not authorized to view all objects!");
 		}
 		return rv;
 	}
@@ -291,10 +282,10 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 						.stream()
 						.map(this.converter::toBoundary)
 						.toList();
-			
+
 			default:
 				throw new UserUnauthorizedException(
-						"Only end users and operators are authorized searching by location!");
+						"User is not authorized to view objects by location!");
 		}
 	}
 
@@ -350,62 +341,52 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Override
     @Transactional(readOnly = true)
     public List<ObjectBoundary> getObjectsByAlias(String alias, String userSystemID, String userEmail, int size, int page) {
-        try {
             UserRole role = users.getUserRole(userSystemID, userEmail);
 
-            switch (role) {
-                case ADMIN:
-                    throw new UserUnauthorizedException("Searching an object by alias is unauthorized for admin users!");
+        switch (role) {
+            case ADMIN:
+                throw new UserUnauthorizedException("Searching an object by alias is unauthorized for admin users!");
 
-                case END_USER:
-                    return this.objects
-                            .findAllByAliasAndActiveTrue(alias,
-                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
-                            .stream().map(this.converter::toBoundary).toList();
+            case END_USER:
+                return this.objects
+                        .findAllByAliasAndActiveTrue(alias,
+                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                        .stream().map(this.converter::toBoundary).toList();
 
-                case OPERATOR:
-                    return this.objects
-                            .findAllByAlias(alias,
-                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
-                            .stream().map(this.converter::toBoundary).toList();
-                default:
-                    throw new IllegalArgumentException("Unexpected value: " + role);
-            }
-
-        } catch (Exception e) {
-            throw e;
+            case OPERATOR:
+                return this.objects
+                        .findAllByAlias(alias,
+                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                        .stream().map(this.converter::toBoundary).toList();
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + role);
         }
     }
 
 
-	
     @Override
     @Transactional(readOnly = true)
-    public List<ObjectBoundary> getObjectsByLAliasPattern(String pattern, String userSystemID, String userEmail, int size, int page) {
-        try {
-            UserRole role = users.getUserRole(userSystemID, userEmail);
+    public List<ObjectBoundary> getObjectsByAliasPattern(String pattern, String userSystemID, String userEmail, int size, int page) {
 
-            switch (role) {
-                case ADMIN:
-                    throw new UserUnauthorizedException("Searching an object by alias pattern is unauthorized for admin users!");
+		UserRole role = users.getUserRole(userSystemID, userEmail);
 
-                case END_USER:
-                    return this.objects
-                            .findAllByAliasLikeAndActiveTrue(pattern,
-                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
-                            .stream().map(this.converter::toBoundary).toList();
+        switch (role) {
+            case ADMIN:
+                throw new UserUnauthorizedException("Searching an object by alias pattern is unauthorized for admin users!");
 
-                case OPERATOR:
-                    return this.objects
-                            .findAllByAliasLike(pattern,
-                                    PageRequest.of(page, size, Direction.ASC, "alias", "objectId"))
-                            .stream().map(this.converter::toBoundary).toList();
-                default:
-                    throw new IllegalArgumentException("Unexpected value: " + role);
-            }
+            case END_USER:
+                return this.objects
+                        .findAllByAliasLikeAndActiveTrue("%" + pattern + "%",
+                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                        .stream().map(this.converter::toBoundary).toList();
 
-        } catch (Exception e) {
-            throw e;
+            case OPERATOR:
+                return this.objects
+                        .findAllByAliasLike("%" + pattern + "%",
+                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                        .stream().map(this.converter::toBoundary).toList();
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + role);
         }
     }
 
