@@ -2,7 +2,6 @@ package aii.logic;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -129,7 +128,8 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         UserId ui = newCommand.getInvokedBy().getUserId();
 
         // Check for object existence and active is true (this method will throw if the conditions are not met.)
-        Optional<ObjectBoundary> op = this.objects.getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId());
+        ObjectBoundary op = this.objects.getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId())
+                .orElseThrow(() -> new InvalidCommandException("ERROR - Object not found"));
 
         // Passed all validations, create and save the command entity:
         CommandEntity commandEntity = new CommandEntity();
@@ -156,33 +156,6 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     @Deprecated
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail) {
         throw new UnsupportedOperationException("ERROR - Deprecated method");
-        /*
-        // Validate admin credentials
-        if (adminSystemID == null || adminEmail == null) {
-            throw new InvalidInputException("ERROR - Admin credentials are required");
-        }
-
-        if (!emailValidator.isEmailValid(adminEmail)) {
-            throw new InvalidInputException("ERROR - Invalid email format");
-        }
-
-        UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
-
-        if (role != UserRole.ADMIN) {
-            throw new UserUnauthorizedException("ERROR - User does not have permission to view all commands");
-        }
-
-        // Fetch all command entities from the DB
-        List<CommandEntity> commandEntities = this.commands.findAll();
-
-        // Convert CommandEntity to CommandBoundary for response
-        List<CommandBoundary> commandBoundaries = new ArrayList<>();
-        for (CommandEntity entity : commandEntities) {
-            commandBoundaries.add(new CommandBoundary(entity));
-        }
-
-        return commandBoundaries;
-        */
     }
 
     @Override
