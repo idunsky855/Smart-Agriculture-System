@@ -1,7 +1,5 @@
 package aii.presentation;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import aii.data.UserRole;
 import aii.logic.EnhancedUsersService;
 import aii.logic.NewUserBoundary;
 import aii.logic.UserBoundary;
 import aii.logic.UserId;
-import aii.logic.UsersService;
 import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.UserUnauthorizedException;
 
@@ -34,15 +30,21 @@ public class UserController {
 		this.users = users;
 	}
 
-	@GetMapping(path = { "/users/login/{systemID}/{userEmail}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
-	public UserBoundary validateLoginAndGetUserDetails(@PathVariable("systemID") String systemID,
+	@GetMapping(
+			path = { "/users/login/{systemID}/{userEmail}" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
+	public UserBoundary validateLoginAndGetUserDetails(
+			@PathVariable("systemID") String systemID,
 			@PathVariable("userEmail") String userEmail) {
 
 		return this.users.login(systemID, userEmail).orElseThrow(() -> new UserUnauthorizedException(
 				"Could not find user by id or user is unauthorized: " + systemID + "@@" + userEmail));
 	}
 
-	@PostMapping(path = { "/users" }, consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+	@PostMapping(
+			path = { "/users" }, 
+			consumes = { MediaType.APPLICATION_JSON_VALUE }, 
+			produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
 	public UserBoundary insertToDb(@RequestBody NewUserBoundary newUser) {
@@ -64,15 +66,22 @@ public class UserController {
 		return this.users.createUser(rv);
 	}
 
-	@PutMapping(path = { "/users/{systemID}/{userEmail}" }, consumes = { MediaType.APPLICATION_JSON_VALUE })
-	public void updateUser(@PathVariable("systemID") String systemID, @PathVariable("userEmail") String userEmail,
+	@PutMapping(
+			path = { "/users/{systemID}/{userEmail}" }, 
+			consumes = { MediaType.APPLICATION_JSON_VALUE })
+	public void updateUser(
+			@PathVariable("systemID") String systemID, 
+			@PathVariable("userEmail") String userEmail,
 			@RequestBody UserBoundary update) {
 
 		this.users.updateUser(systemID, userEmail, update);
 	}
 
-	@GetMapping(path = { "/admin/users" }, produces = { MediaType.APPLICATION_JSON_VALUE })
-	public UserBoundary[] exportAllUsers(@RequestParam(name = "userSystemID", required = true) String systemID,
+	@GetMapping(
+			path = { "/admin/users" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
+	public UserBoundary[] exportAllUsers(
+			@RequestParam(name = "userSystemID", required = true) String systemID,
 			@RequestParam(name = "userEmail", required = true) String email,
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {

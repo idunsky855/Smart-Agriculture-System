@@ -1,6 +1,7 @@
 package aii.dal;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,15 +11,17 @@ import org.springframework.data.repository.query.Param;
 import aii.data.ObjectEntity;
 
 public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
+	
+	public Optional<ObjectEntity> findByObjectIdAndActiveTrue(@Param("objectId") String objectId);
 
-	public List<ObjectEntity> findAllByTypeIgnoreCaseAndActiveTrue(@Param("type") String type, Pageable pageable);
+	public List<ObjectEntity> findAllByTypeAndActiveTrue(@Param("type") String type, Pageable pageable);
 
-	public List<ObjectEntity> findAllByTypeAndStatusIgnoreCaseAndActiveTrue(@Param("type") String type,
+	public List<ObjectEntity> findAllByTypeAndStatusAndActiveTrue(@Param("type") String type,
 			@Param("status") String status, Pageable pageable);
 
-	public List<ObjectEntity> findAllByTypeIgnoreCase(@Param("type") String type, Pageable pageable);
+	public List<ObjectEntity> findAllByType(@Param("type") String type, Pageable pageable);
 
-	public List<ObjectEntity> findAllByTypeAndStatusIgnoreCase(@Param("type") String type,
+	public List<ObjectEntity> findAllByTypeAndStatus(@Param("type") String type,
 			@Param("status") String status, Pageable pageable);
 
     public List<ObjectEntity> findAllByAlias(@Param("alias") String alias, Pageable pageable);

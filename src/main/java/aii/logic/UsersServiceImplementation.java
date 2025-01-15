@@ -208,6 +208,6 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 	    if (entityOp.isPresent())
 	        return entityOp.get().getRole(); // Return the actual role of the user
 	    else
-	        throw new UserNotFoundException("Could not find user by id: " + key);
+	        throw new UserUnauthorizedException("The operation is not authorized for user with id: " + key);
 	}
 }

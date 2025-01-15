@@ -30,7 +30,9 @@ public class ObjectController {
 		this.objects = objects;
 	}
 
-	@GetMapping(path = { "/aii/objects/{systemID}/{id}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects/{systemID}/{id}" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary getObjectById(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id,
@@ -41,7 +43,9 @@ public class ObjectController {
 						"Couldn't find the object with object id - " + systemID + "@@" + id));
 	}
 
-	@GetMapping(path = { "/aii/objects" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getAllObjects(
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page,
 			@RequestParam(name = "size", required = false, defaultValue = "10") int size,
@@ -52,8 +56,10 @@ public class ObjectController {
 		return rv;
 	}
 
-	@PostMapping(path = { "/aii/objects" }, consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
-			MediaType.APPLICATION_JSON_VALUE })
+	@PostMapping(
+			path = { "/aii/objects" }, 
+			consumes = { MediaType.APPLICATION_JSON_VALUE }, 
+			produces = {MediaType.APPLICATION_JSON_VALUE })
 	@ResponseStatus(HttpStatus.CREATED)
 	public ObjectBoundary insertObjectToDb(
 			@RequestBody ObjectBoundary object) {
@@ -77,7 +83,9 @@ public class ObjectController {
 		return this.objects.create(userSystemID, userEmail, object);
 	}
 
-	@PutMapping(path = { "/aii/objects/{systemID}/{id}" }, consumes = { MediaType.APPLICATION_JSON_VALUE })
+	@PutMapping(
+			path = { "/aii/objects/{systemID}/{id}" }, 
+			consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public void updateObject(
 			@PathVariable("systemID") String systemID,
 			@PathVariable("id") String id,
@@ -105,7 +113,9 @@ public class ObjectController {
 		}
 	}
 
-	@GetMapping(path = { "/aii/objects/search/byType/{type}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects/search/byType/{type}" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getObjectsByType(
 			@PathVariable("type") String type,
 			@RequestParam(name = "userSystemID", required = true) String systemID,
@@ -117,7 +127,9 @@ public class ObjectController {
 				.toArray(new ObjectBoundary[0]);
 	}
 
-	@GetMapping(path = { "/aii/objects/search/byAlias/{alias}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects/search/byAlias/{alias}" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getObjectsByAlias(
 			@PathVariable("alias") String alias,
 			@RequestParam(name = "userSystemID", required = true) String systemID,
@@ -130,8 +142,9 @@ public class ObjectController {
 	}
 
 
-	@GetMapping(path = { "/aii/objects/search/byTypeAndStatus/{type}/{status}" }, produces = {
-			MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects/search/byTypeAndStatus/{type}/{status}" }, 
+			produces = {MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getObjectsByTypeAndStatus(
 			@PathVariable("type") String type,
 			@PathVariable("status") String status,
@@ -159,7 +172,9 @@ public class ObjectController {
 				.toArray(new ObjectBoundary[0]);
 	}
 
-	@GetMapping(path = { "/aii/objects/search/byAliasPattern/{pattern}" }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(
+			path = { "/aii/objects/search/byAliasPattern/{pattern}" }, 
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ObjectBoundary[] getObjectsByAliasPattern(
 			@PathVariable("pattern") String pattern,
 			@RequestParam(name = "userSystemID", required = true) String systemID,
