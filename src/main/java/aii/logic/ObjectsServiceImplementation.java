@@ -353,13 +353,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
             case END_USER:
                 return this.objects
                         .findAllByAliasAndActiveTrue(alias,
-                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                                PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
                         .stream().map(this.converter::toBoundary).toList();
 
             case OPERATOR:
                 return this.objects
                         .findAllByAlias(alias,
-                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                                PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
                         .stream().map(this.converter::toBoundary).toList();
             default:
                 throw new IllegalArgumentException("Unexpected value: " + role);
@@ -380,13 +380,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
             case END_USER:
                 return this.objects
                         .findAllByAliasLikeAndActiveTrue("%" + pattern + "%",
-                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                                PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
                         .stream().map(this.converter::toBoundary).toList();
 
             case OPERATOR:
                 return this.objects
                         .findAllByAliasLike("%" + pattern + "%",
-                                PageRequest.of(page, size, Direction.ASC, "creationTime", "objectId"))
+                                PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
                         .stream().map(this.converter::toBoundary).toList();
             default:
                 throw new IllegalArgumentException("Unexpected value: " + role);

@@ -64,7 +64,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 					SIN(RADIANS(:centerLat)) * SIN(RADIANS(lat))
 				)
 			END <= :radius
-		ORDER BY distance ASC, object_id ASC
+		ORDER BY distance ASC, creation_time DESC, object_id ASC
 		""", nativeQuery = true)
 	List<ObjectEntity> findAllWithinRadius(
 		@Param("centerLat") double centerLat,
@@ -105,7 +105,7 @@ public interface ObjectsCrud extends JpaRepository<ObjectEntity, String> {
 				)
 			END <= :radius
 			AND active = TRUE
-		ORDER BY distance ASC, object_id ASC
+		ORDER BY distance ASC, creation_time DESC, object_id ASC
 		""", nativeQuery = true)
 	List<ObjectEntity> findAllWithinRadiusAndActiveIsTrue(
 		@Param("centerLat") double centerLat,
