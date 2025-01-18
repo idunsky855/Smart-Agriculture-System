@@ -142,23 +142,26 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
 		if (role != UserRole.OPERATOR) {
-			throw new UserUnauthorizedException("Only operators are authorized to update objects!");
+			throw new UserUnauthorizedException("User is not authorized to update objects!");
 		}
 
 		if (!entityOp.isEmpty()) {
 
 			ObjectEntity updatedObject = entityOp.get(); // original object
 
-			// if type updated
+			// if type updated - can't be blank
 			if (update.getType() != null && !update.getType().isBlank()) {
 				updatedObject.setType(update.getType());
 			}
-			// if alias updated
-			if (update.getAlias() != null) {
+
+			// if alias updated - can't be blank
+			if (update.getAlias() != null && !update.getAlias().isBlank()) {
 				updatedObject.setAlias(update.getAlias());
 			}
-			// if status updated
-			if (update.getStatus() != null) {
+			
+
+			// if status updated - can't be blank 
+			if (update.getStatus() != null && !update.getStatus().isBlank()) {
 				updatedObject.setStatus(update.getStatus());
 			}
 
