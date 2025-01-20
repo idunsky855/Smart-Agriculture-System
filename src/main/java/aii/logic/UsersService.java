@@ -11,6 +11,7 @@ public interface UsersService {
 	
 	public UserBoundary updateUser(String systemID, String userEmail, UserBoundary update);
 	
+	@Deprecated
 	public List<UserBoundary> getAllUsers(String adminSystemID, String adminEmail);
 	
 	public void deleteAllUsers(String adminSystemID, String adminEmail);

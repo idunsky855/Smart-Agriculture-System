@@ -4,10 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import aii.logic.CreatedBy;
 import aii.logic.Location;
 import aii.logic.ObjectId;
-import aii.logic.converters.LocationConverter;
 import aii.logic.converters.MapToStringConverter;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -20,27 +18,26 @@ import jakarta.persistence.TemporalType;
 @Entity
 @Table(name = "OBJECTS")
 public class ObjectEntity {
-    
+
     @Id
     private String objectId;
     private String type;
     private String alias;
-    private String Status;
-    
-    @Convert(converter = LocationConverter.class)
-    private Location location;
-    
+    private String status;
+
+    private double lat;
+    private double lng;
+
     private boolean active;
-    
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationTime;
-    
-    private String createdBy;
-    
-    @Lob
-    @Convert( converter = MapToStringConverter.class)
-    private Map<String, Object> objectDetails;
 
+    private String createdBy;
+
+    @Lob
+    @Convert(converter = MapToStringConverter.class)
+    private Map<String, Object> objectDetails;
 
     public String getObjectId() {
         return objectId;
@@ -50,7 +47,7 @@ public class ObjectEntity {
         this.objectId = objectId;
     }
 
-    public void setObjectId(ObjectId objectId){
+    public void setObjectId(ObjectId objectId) {
         this.objectId = objectId.getSystemID() + "@@" + objectId.getId();
     }
 
@@ -71,19 +68,32 @@ public class ObjectEntity {
     }
 
     public String getStatus() {
-        return Status;
+        return status;
     }
 
     public void setStatus(String status) {
-       Status = status;
+        this.status = status;
     }
 
-    public Location getLocation() {
-        return location;
+    public double getLat() {
+        return lat;
+    }
+
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
     }
 
     public void setLocation(Location location) {
-        this.location = location;
+        this.lat = location.getLat();
+        this.lng = location.getLng();
     }
 
     public boolean getActive() {
@@ -102,7 +112,7 @@ public class ObjectEntity {
         this.creationTime = creationTime;
     }
 
-    public String getCreatdBy(){
+    public String getCreatedBy() {
         return createdBy;
     }
 
@@ -111,7 +121,7 @@ public class ObjectEntity {
     }
 
     public Map<String, Object> getObjectDetails() {
-        if(this.objectDetails == null)
+        if (this.objectDetails == null)
             this.objectDetails = new HashMap<String, Object>();
         return objectDetails;
     }
@@ -122,9 +132,9 @@ public class ObjectEntity {
 
     @Override
     public String toString() {
-        return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + Status
-                + ", location=" + location + ", active=" + active + ", creationTime=" + creationTime + ", createdBy="
+        return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + status
+                + ", location=[lng = " + lng + ", lat = " + lat + "], active=" + active + ", creationTime="
+                + creationTime + ", createdBy="
                 + createdBy + ", objectDetails=" + objectDetails + "]";
     }
-    
 }
