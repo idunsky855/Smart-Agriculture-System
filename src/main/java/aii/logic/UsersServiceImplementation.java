@@ -175,7 +175,6 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 		}
 	}
 
-	@Transactional(readOnly = true)
 	public UserRole getUserRole(String systemID, String email) {
 
 	    if (systemID == null || systemID.trim().isEmpty())

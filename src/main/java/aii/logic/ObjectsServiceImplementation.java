@@ -186,8 +186,13 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			// if location updated
 			if (update.getLocation() != null) {
 				Location newLoc = update.getLocation();
-				if (newLoc.getLng() != null && newLoc.getLat() != null) {
-					updatedObject.setLocation(newLoc);
+				
+				if (newLoc.getLat() != null){
+					updatedObject.setLat(newLoc.getLat());
+				}
+				
+				if (newLoc.getLng() != null) {
+					updatedObject.setLng(newLoc.getLng());
 				}
 			}
 
@@ -273,7 +278,6 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
 	@Override
 	@Deprecated
-	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
 		throw new RuntimeException("Deprecated operation - use getAll that uses pagination");
 	}
