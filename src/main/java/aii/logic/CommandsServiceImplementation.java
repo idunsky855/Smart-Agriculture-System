@@ -179,8 +179,6 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         return this.commands
             .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
             .stream()
-            .skip(page * size)
-            .limit(size)
             .map(CommandBoundary::new)
             .toList();
     }
