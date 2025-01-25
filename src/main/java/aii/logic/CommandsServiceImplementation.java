@@ -76,18 +76,6 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
             throw new InvalidCommandException("ERROR - UserId is null");
         }
 
-        if (newCommand.getCommandId().getId() == null) {
-            throw new InvalidCommandException("ERROR - CommandId - Id is null");
-        }
-
-        if (newCommand.getCommandId().getSystemID() == null) {
-            throw new InvalidCommandException("ERROR - CommandId - SystemID is null");
-        }
-
-        if (newCommand.getCommandId().getSystemID().isEmpty()) {
-            throw new InvalidCommandException("ERROR - CommandId - SystemID is empty");
-        }
-
         if (newCommand.getTargetObject().getObjectId().getId() == null) {
             throw new InvalidCommandException("ERROR - ObjectId - Id is null");
         }
