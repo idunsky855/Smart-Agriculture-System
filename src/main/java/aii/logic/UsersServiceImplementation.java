@@ -20,6 +20,7 @@ import aii.logic.exceptions.UserAlreadyExistsException;
 import aii.logic.exceptions.UserNotFoundException;
 import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class UsersServiceImplementation implements EnhancedUsersService {
@@ -264,6 +265,27 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 		} else {
 			this.logger.error("User not found: " + key);
 	        throw new UserUnauthorizedException("User is not authorized to perform this operation");
+		}
+	}
+
+	@PostConstruct
+	private void initializeDefaultUser() {
+		this.logger.trace("initializeDefaultUser()");
+
+		UserBoundary defaultUser = new UserBoundary();
+
+		// Crate user with email: sensor@default.com and id: 2025a.Liron.Barshishat:
+		defaultUser.setUserId(new UserId("2025a.Liron.Barshishat", "sensor@default.com"));
+		defaultUser.setUsername("Sensor");
+		defaultUser.setRole(UserRole.OPERATOR);
+		defaultUser.setAvatar("sensor");
+
+		// Verify that the user does not exist in the database when DB is not empty on startup:
+		if (!login(defaultUser.getUserId().getSystemID(), defaultUser.getUserId().getEmail()).isEmpty()) {
+			this.logger.debug("User already exists when creating default user: " + defaultUser.getUserId().getEmail());
+		} else {
+			// Call createUser to insert the default user to the database:
+			createUser(defaultUser);
 		}
 	}
 }
