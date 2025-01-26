@@ -575,4 +575,25 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<ObjectBoundary> getPlantsForWatering(String userSystemID, String userEmail, int size, int page) {
+		UserRole role = users.getUserRole(userSystemID, userEmail);
+		switch (role) {
+			case ADMIN:
+				throw new UserUnauthorizedException("Searching plants for watering is unauthorized for admin users!");
+			case END_USER:
+				return this.objects.findAllByTypeIsPlantAndActiveIsTrueAndNeedWatering(
+					     PageRequest.of(page, size))
+				.stream().map(this.converter::toBoundary).toList();
+
+			case OPERATOR:
+				/*return this.objects
+						.findAllByTypePlantAndCurrentSoilMoistureLevelLessThanOptimalSoilMoistureLevel(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
+						.stream().map(this.converter::toBoundary).toList();*/
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + role);
+		}
+	}
+
 }

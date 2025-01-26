@@ -1,7 +1,6 @@
 package aii.presentation;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,15 +49,8 @@ public class CommandController {
         // Pass the command to the service layer for processing
         List<Object> result = this.commands.invokeCommand(newCommand);
 
-        // Ensure the returned list contains only CommandBoundary objects
-        List<Object> commandBoundaries =
-            result
-                .stream()
-                .map(obj -> (Object) obj)
-                .collect(Collectors.toList());
-
         // Convert the list to an array
-        return commandBoundaries.toArray(new Object[0]);
+        return result.toArray(new Object[0]);
     }
 
     // DELETE all commands
