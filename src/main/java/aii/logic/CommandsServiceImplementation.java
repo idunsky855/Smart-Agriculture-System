@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
@@ -28,6 +30,7 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     private EmailValidator emailValidator;
     private EnhancedUsersService users;
     private EnhancedObjectsService objects;
+    private Log logger = LogFactory.getLog(CommandsServiceImplementation.class);
 
 
 
@@ -40,8 +43,9 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
 
     @Value("${spring.application.name:defaultAppName}")
     public void setSpringApplicationName(String springApplicationName) {
+        this.logger.trace("setSpringApplicationName(" + springApplicationName + ")");
         this.springApplicationName = springApplicationName;
-        System.err.println("[DEBUG] - CommandsService " + this.springApplicationName);
+        this.logger.debug(this.springApplicationName);
     }
 
     @Override
@@ -49,58 +53,74 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     public List<Object> invokeCommand(CommandBoundary newCommand) {
         // Input validations:
         if (newCommand == null) {
+            this.logger.error("Command is null");
             throw new InvalidCommandException("ERROR - Command is null");
         }
 
+        this.logger.trace("invokeCommand(" + newCommand.toString() + ")");
+
         if (newCommand.getCommand() == null) {
+            this.logger.error("Command is null");
             throw new InvalidCommandException("ERROR - Command is null");
         }
 
         if (newCommand.getCommand().isEmpty()) {
+            this.logger.error("Command is empty");
             throw new InvalidCommandException("ERROR - Command is empty");
         }
 
         if (newCommand.getTargetObject() == null) {
+            this.logger.error("TargetObject is null");
             throw new InvalidCommandException("ERROR - TargetObject is null");
         }
 
         if (newCommand.getTargetObject().getObjectId() == null) {
+            this.logger.error("ObjectId is null");
             throw new InvalidCommandException("ERROR - ObjectId is null");
         }
 
         if (newCommand.getInvokedBy() == null) {
+            this.logger.error("InvokedBy is null");
             throw new InvalidCommandException("ERROR - InvokedBy is null");
         }
 
         if (newCommand.getInvokedBy().getUserId() == null) {
+            this.logger.error("UserId is null");
             throw new InvalidCommandException("ERROR - UserId is null");
         }
 
         if (newCommand.getTargetObject().getObjectId().getId() == null) {
+            this.logger.error("ObjectId - Id is null");
             throw new InvalidCommandException("ERROR - ObjectId - Id is null");
         }
 
         if (newCommand.getTargetObject().getObjectId().getSystemID() == null) {
+            this.logger.error("ObjectId - SystemID is null");
             throw new InvalidCommandException("ERROR - ObjectId - SystemID is null");
         }
 
         if (newCommand.getTargetObject().getObjectId().getSystemID().isEmpty()) {
+            this.logger.error("ObjectId - SystemID is empty");
             throw new InvalidCommandException("ERROR - ObjectId - SystemID is empty");
         }
 
         if (newCommand.getInvokedBy().getUserId().getEmail() == null) {
+            this.logger.error("UserId - Email is null");
             throw new InvalidCommandException("ERROR - UserId - Email is null");
         }
 
         if (!emailValidator.isEmailValid(newCommand.getInvokedBy().getUserId().getEmail())) {
+            this.logger.error("UserId - Invalid email format");
             throw new InvalidCommandException("ERROR - UserId - Invalid email format");
         }
 
         if (newCommand.getInvokedBy().getUserId().getSystemID() == null) {
+            this.logger.error("UserId - SystemID is null");
             throw new InvalidCommandException("ERROR - UserId - SystemID is null");
         }
 
         if (newCommand.getInvokedBy().getUserId().getSystemID().isEmpty()) {
+            this.logger.error("UserId - SystemID is empty");
             throw new InvalidCommandException("ERROR - UserId - SystemID is empty");
         }
 
@@ -108,7 +128,10 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         UserRole role = this.users.getUserRole(newCommand.getInvokedBy().getUserId().getSystemID(),
                 newCommand.getInvokedBy().getUserId().getEmail());
 
+        this.logger.debug("UserRole: " + role);
+
         if (role != UserRole.END_USER) {
+            this.logger.error("User does not have permission to invoke commands");
             throw new InvalidCommandException("ERROR - User does not have permission to invoke commands");
         }
 
@@ -118,6 +141,8 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         // Check for object existence and active is true (this method will throw if the conditions are not met.)
         ObjectBoundary op = this.objects.getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId())
                 .orElseThrow(() -> new InvalidCommandException("ERROR - Object not found"));
+
+        this.logger.debug("Object found: " + op.toString());
 
         // Passed all validations, create and save the command entity:
         CommandEntity commandEntity = new CommandEntity();
@@ -135,6 +160,8 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
 
         CommandBoundary response = new CommandBoundary(commandEntity);
 
+        this.logger.debug("Command saved: " + response.toString());
+
         return List.of(response);
 
     }
@@ -143,26 +170,37 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     @Override
     @Deprecated
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail) {
+        this.logger.trace("getAllCommands(" + adminSystemID + ", " + adminEmail + ")");
+        this.logger.error("Deprecated method");
         throw new UnsupportedOperationException("ERROR - Deprecated method");
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<CommandBoundary> getAllCommands(String adminSystemID, String adminEmail, int page, int size) {
+        this.logger.trace("getAllCommands(" + adminSystemID + ", " + adminEmail + ", " + page + ", " + size + ")");
+
         // Validate admin credentials
         if (adminSystemID == null || adminEmail == null) {
+            this.logger.error("Admin credentials are required");
             throw new InvalidInputException("ERROR - Admin credentials are required");
         }
 
         if (!emailValidator.isEmailValid(adminEmail)) {
+            this.logger.error("Invalid email format");
             throw new InvalidInputException("ERROR - Invalid email format");
         }
 
         UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
 
+        this.logger.debug("UserRole: " + role.toString());
+
         if (role != UserRole.ADMIN) {
+            this.logger.error("User does not have permission to view all commands");
             throw new UserUnauthorizedException("ERROR - User does not have permission to view all commands");
         }
+
+        this.logger.debug("Returning all commands");
 
         return this.commands
             .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
@@ -174,22 +212,30 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     @Override
     @Transactional(readOnly = false)
     public void deleteAllCommands(String adminSystemID, String adminEmail) {
+        this.logger.trace("deleteAllCommands(" + adminSystemID + ", " + adminEmail + ")");
+
+        // Validate admin credentials
         if (adminSystemID == null || adminEmail == null) {
+            this.logger.error("Admin credentials are required");
             throw new InvalidInputException("[ERROR] - Admin credentials are required");
         }
 
         if (!emailValidator.isEmailValid(adminEmail)) {
+            this.logger.error("Invalid email format");
             throw new InvalidInputException("[ERROR] - Invalid email format");
         }
 
         UserRole role = this.users.getUserRole(adminSystemID, adminEmail);
 
+        this.logger.debug("UserRole: " + role.toString());
+
         if (role != UserRole.ADMIN) {
+            this.logger.error("User does not have permission to delete all commands");
             throw new UserUnauthorizedException("[ERROR] - User does not have permission to delete all commands");
         }
 
         this.commands.deleteAll();
-        System.out.println("[WARN] - All commands deleted by admin: " + adminSystemID + " / " + adminEmail);
+        this.logger.warn("All commands deleted by admin: " + adminSystemID + " / " + adminEmail);
     }
 
 }

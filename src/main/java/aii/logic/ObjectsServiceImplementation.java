@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
@@ -30,6 +32,8 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	private ObjectConverter converter;
 	private EmailValidator emailValidator;
 	private EnhancedUsersService users;
+	private Log logger = LogFactory.getLog(ObjectsServiceImplementation.class);
+
 
 	public ObjectsServiceImplementation(ObjectsCrud objects, ObjectConverter converter, EnhancedUsersService users) {
 		this.objects = objects;
@@ -40,59 +44,77 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
 	@Value("${spring.application.name:defaultAppName}")
 	public void setSpringApplicationName(String springApplicationName) {
+		this.logger.trace("setSpringApplicationName(" + springApplicationName + ")");
 		this.springApplicationName = springApplicationName;
-		// log debug
-		System.out.println("[DEBUG] - ObjectsServiceImplementation " + this.springApplicationName);
-		System.out.println("[DEBUG] - ObjectsService " + this.springApplicationName);
+
+		// Log:
+		this.logger.debug("ObjectServiceImplementation" + this.springApplicationName);
 	}
 
 	@Override
 	@Transactional
 	public ObjectBoundary create(String userSystemID, String userEmail, ObjectBoundary object) {
+		this.logger.trace("create(" + userSystemID + ", " + userEmail + ", " + object + ")");
 
 		if (object == null) {
+			this.logger.error("Object is null");
 			throw new InvalidInputException("object can't be NULL!");
 		}
 
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
+		this.logger.debug("UserRole: " + role.toString());
+
 		if (role != UserRole.OPERATOR) {
+			this.logger.error("User is not authorized to create objects");
 			throw new UserUnauthorizedException("User is not authorized to create objects!");
 		}
 
 		// Passed validaitons - create id for the new object:
 		ObjectId objectId = new ObjectId(UUID.randomUUID().toString(), this.springApplicationName);
+
+		this.logger.debug("ObjectId: " + objectId.toString());
+
 		object.setObjectId(objectId);
 
 		// validate type
 		if (object.getType() == null || object.getType().isBlank()) {
+			this.logger.error("New objects must contain a type value!");
 			throw new InvalidInputException("New objects must contain a type value!");
 		}
 
 		// validate if alias is blank - replace with null
 		if (object.getAlias() == null || object.getAlias().isBlank()) {
+			this.logger.error("New objects must contain an alias value!");
 			throw new InvalidInputException("New objects must contain an alias value!");
 		}
 
 		// validate status
 		if (object.getStatus() == null || object.getStatus().isBlank()) {
+			this.logger.error("New objects must contain a status value!");
 			throw new InvalidInputException("New objects must contain a status value!");
 		}
 
 		// if object location is null - set it to a new one
 		if (object.getLocation() == null) {
+			this.logger.warn("New object location is null - setting to default location!");
 			object.setLocation(new Location());
 		}
+
 		// validate location and set to default if invalid
 		Location objLocation = object.getLocation();
 		if (objLocation.getLat() == null || objLocation.getLng() == null) {
 			// if no valid location was given - set the location to Google's Headquarters -
 			// Mountain View, California
+
+			this.logger.warn("New object location is invalid - setting to default location! (Google HQ)");
 			object.setLocation(new Location(37.4220, -122.0841));
 		}
 
 		// validate active
 		if (object.getActive() == null) {
+			this.logger.warn("New object active status is null - default is false");
+
 			// default is active = false
 			object.setActive(false);
 		}
@@ -102,12 +124,14 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
 		// create and validate created by
 		if (object.getCreatedBy() == null) {
+			this.logger.error("New object must contain a valid CreatedBy field - with a valid userID!");
 			throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
 		}
 		CreatedBy cb = object.getCreatedBy();
 		if (cb.getUserId() == null || cb.getUserId().getEmail() == null || cb.getUserId().getEmail().isBlank()
 				|| cb.getUserId().getSystemID() == null || cb.getUserId().getSystemID().isBlank()
 				|| !emailValidator.isEmailValid(cb.getUserId().getEmail())) {
+			this.logger.error("New object must contain a valid CreatedBy field - with a valid userID!");
 			throw new InvalidInputException("New object must contain a valid CreatedBy field - with a valid userID!");
 		}
 
@@ -117,19 +141,20 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		}else{
 			Map<String, Object> details = object.getObjectDetails();
 			Set<String> keys = details.keySet();
-			
+
 			if (keys.contains("relatedObjectId") &&
 						details.get("relatedObjectId") != null) {
 
 					String relatedObjectId = details.get("relatedObjectId").toString();
-					
+
 					if (!relatedObjectId.isBlank()) {
 
 						Optional<ObjectBoundary> op = this.objects.findById(relatedObjectId)
 								.map(this.converter::toBoundary);
 						if (op.isEmpty()) {
+							this.logger.error("Invalid relatedObjectId!");
 							throw new InvalidInputException("Invalid relatedObjectId!");
-						}	
+						}
 					}
 				}
 		}
@@ -151,16 +176,21 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 
 		// check if any of the ID's are either empty or only whitespace
 		if (objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
+			this.logger.error("objectSystemID and objectId can't be blank");
 			throw new InvalidInputException("objectSystemID and objectId can't be blank");
 		}
 
 		if (!emailValidator.isEmailValid(userEmail)) {
+			this.logger.error("Invalid email format");
 			throw new InvalidInputException("Invalid email format");
 		}
 
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
+		this.logger.debug("UserRole: " + role.toString());
+
 		if (role != UserRole.OPERATOR) {
+			this.logger.error("User is not authorized to update objects");
 			throw new UserUnauthorizedException("User is not authorized to update objects!");
 		}
 
@@ -186,11 +216,11 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			// if location updated
 			if (update.getLocation() != null) {
 				Location newLoc = update.getLocation();
-				
+
 				if (newLoc.getLat() != null){
 					updatedObject.setLat(newLoc.getLat());
 				}
-				
+
 				if (newLoc.getLng() != null) {
 					updatedObject.setLng(newLoc.getLng());
 				}
@@ -251,7 +281,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 						details.get("relatedObjectId") != null) {
 
 					String relatedObjectId = details.get("relatedObjectId").toString();
-					
+
 					if (!relatedObjectId.isBlank()) {
 
 						Optional<ObjectBoundary> op = this.objects.findById(relatedObjectId)
@@ -268,10 +298,11 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 				updatedObject.setObjectDetails(update.getObjectDetails());
 			}
 
+			this.logger.debug("Updated object: " + updatedObject.toString());
 			return this.converter.toBoundary(this.objects.save(updatedObject));
 
 		} else {
-
+			this.logger.error("Object not found with object id - " + objectSystemID + "@@" + objectId);
 			throw new ObjectNotFoundException("Couldn't find the object with object id - " + objectId);
 		}
 	}
@@ -279,6 +310,8 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Override
 	@Deprecated
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail) {
+		this.logger.trace("getAll(" + userSystemID + ", " + userEmail + ")");
+		this.logger.error("Deprecated operation - use getAll that uses pagination");
 		throw new RuntimeException("Deprecated operation - use getAll that uses pagination");
 	}
 
@@ -286,26 +319,37 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Transactional(readOnly = true)
 	public Optional<ObjectBoundary> getSpecificObject(String userSystemID, String userEmail, String objectSystemID,
 			String objectId) {
+		this.logger.trace("getSpecificObject(" + userSystemID + ", " + userEmail + ", " + objectSystemID + ", " + objectId + ")");
+
 		// check if any of the ID's are either empty or only whitespace
 		if (objectSystemID == null || objectId == null || objectSystemID.isBlank() || objectId.isBlank()) {
+			this.logger.error("objectSystemID and objectId can't be blank");
 			throw new InvalidInputException("objectSystemID and objectId can't be blank");
 		}
 
 		if (userSystemID == null || userEmail == null || userSystemID.isBlank() || userEmail.isBlank()) {
+			this.logger.error("userSystemID and userEmail can't be blank");
 			throw new InvalidInputException("userSystemID and userEmail can't be blank");
 		}
 
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 		String objectKey = objectSystemID + "@@" + objectId;
 
+		this.logger.debug("UserRole: " + role.toString());
+		this.logger.debug("ObjectKey: " + objectKey);
+
 		switch (role) {
 			case ADMIN:
+				this.logger.error("Get a specific object by ID is unauthorized for admin users!");
 				throw new UserUnauthorizedException("Get a specific object by ID is unauthorized for admin users!");
 			case END_USER:
+				this.logger.debug("Get a specific object by ID for end users");
 				return this.objects.findByObjectIdAndActiveTrue(objectKey).map(this.converter::toBoundary);
 			case OPERATOR:
+				this.logger.debug("Get a specific object by ID for operators");
 				return this.objects.findById(objectKey).map(this.converter::toBoundary);
 			default:
+				this.logger.error("Unexpected value: " + role);
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
 	}
@@ -313,19 +357,28 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Override
 	@Transactional
 	public void deleteAllObjects(String adminSystemID, String adminEmail) {
+		this.logger.trace("deleteAllObjects(" + adminSystemID + ", " + adminEmail + ")");
+
 		if (users.getUserRole(adminSystemID, adminEmail) == UserRole.ADMIN) {
 			this.objects.deleteAll();
+			this.logger.info("All objects deleted successfully!");
 			return;
 		}
+
+		this.logger.error("Only Admins are authorized to delete all objects!");
 		throw new UserUnauthorizedException("Only Admins are authorized to delete all objects!");
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getAll(String userSystemID, String userEmail, int page, int size) {
+		this.logger.trace("getAll(" + userSystemID + ", " + userEmail + ", " + page + ", " + size + ")");
 
 		List<ObjectBoundary> rv = null;
 		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+		this.logger.debug("UserRole: " + role.toString());
+
 		if (role == UserRole.END_USER) {
 			rv = this.objects
 					.findAllByActiveTrue(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
@@ -334,6 +387,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			rv = this.objects.findAll(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId")).stream()
 					.map(this.converter::toBoundary).toList();
 		} else {
+			this.logger.error("User is not authorized to view all objects");
 			throw new UserUnauthorizedException("User is not authorized to view all objects!");
 		}
 		return rv;
@@ -343,19 +397,27 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getObjectsByLocation(double lat, double lng, double distance, String distanceUnits,
 			String userSystemID, String userEmail, int page, int size) {
+		this.logger.trace("getObjectsByLocation(" + lat + ", " + lng + ", " + distance + ", " + distanceUnits + ", " + userSystemID + ", " + userEmail + ", " + page + ", " + size + ")");
+
 		if (distance < 0.0) {
+			this.logger.error("Distance must be positive!");
 			throw new InvalidInputException("Distance must be positive!");
 		}
 
 		if (!distanceUnits.equals("NEUTRAL") && !distanceUnits.equals("MILES") && !distanceUnits.equals("KILOMETERS")) {
+			this.logger.error("Distance Units must be one of NEUTRAL, KILOMETERS and MILES!");
 			throw new InvalidInputException("Distance Units must be one of NEUTRAL, KILOMETERS and MILES!");
 		}
 
 		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+		this.logger.debug("UserRole: " + role.toString());
+
 		switch (role) {
 			case UserRole.END_USER:
 				// find only active objects
 				// already sorted by query
+				this.logger.debug("End user - find only active objects");
 				return this.objects
 						.findAllWithinRadiusAndActiveIsTrue(lat, lng, distance, distanceUnits,
 								PageRequest.of(page, size))
@@ -366,6 +428,7 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 			case UserRole.OPERATOR:
 				// find all objects
 				// already sorted by query
+				this.logger.debug("Operator - find all objects including inactive");
 				return this.objects
 						.findAllWithinRadius(lat, lng, distance, distanceUnits, PageRequest.of(page, size))
 						.stream()
@@ -383,21 +446,29 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	public List<ObjectBoundary> getObjectsByType(String type, String userSystemID, String userEmail, int size,
 			int page) {
 
+		this.logger.trace("getObjectsByType(" + type + ", " + userSystemID + ", " + userEmail + ", " + size + ", " + page + ")");
+
 		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+		this.logger.debug("UserRole: " + role.toString());
 
 		switch (role) {
 			case ADMIN:
+				this.logger.error("Searching an object by type is unauthorized for admin users!");
 				throw new UserUnauthorizedException("Searching an object by type is unauthorized for admin users!");
 			case END_USER:
+				this.logger.debug("End user - find only active objects");
 				return this.objects
 						.findAllByTypeAndActiveTrue(type,
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			case OPERATOR:
+				this.logger.debug("Operator - find all objects including inactive");
 				return this.objects
 						.findAllByType(type, PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			default:
+				this.logger.error("Unexpected value: " + role);
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
 	}
@@ -406,24 +477,31 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getObjectsByTypeAndStatus(String type, String status, String userSystemID,
 			String userEmail, int size, int page) {
+		this.logger.trace("getObjectsByTypeAndStatus(" + type + ", " + status + ", " + userSystemID + ", " + userEmail + ", " + size + ", " + page + ")");
 
 		UserRole role = users.getUserRole(userSystemID, userEmail);
 
+		this.logger.debug("UserRole: " + role.toString());
+
 		switch (role) {
 			case ADMIN:
+				this.logger.error("Searching an object by type and status is unauthorized for admin users!");
 				throw new UserUnauthorizedException(
 						"Searching an object by type and status is unauthorized for admin users!");
 			case END_USER:
+				this.logger.debug("End user - find only active objects");
 				return this.objects
 						.findAllByTypeAndStatusAndActiveTrue(type, status,
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			case OPERATOR:
+				this.logger.debug("Operator - find all objects including inactive");
 				return this.objects
 						.findAllByTypeAndStatus(type, status,
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			default:
+				this.logger.error("Unexpected value: " + role);
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
 	}
@@ -432,24 +510,31 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	@Transactional(readOnly = true)
 	public List<ObjectBoundary> getObjectsByAlias(String alias, String userSystemID, String userEmail, int size,
 			int page) {
+		this.logger.trace("getObjectsByAlias(" + alias + ", " + userSystemID + ", " + userEmail + ", " + size + ", " + page + ")");
 		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+		this.logger.debug("UserRole: " + role.toString());
 
 		switch (role) {
 			case ADMIN:
+				this.logger.error("Searching an object by alias is unauthorized for admin users!");
 				throw new UserUnauthorizedException("Searching an object by alias is unauthorized for admin users!");
 
 			case END_USER:
+				this.logger.debug("End user - find only active objects");
 				return this.objects
 						.findAllByAliasAndActiveTrue(alias,
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 
 			case OPERATOR:
+				this.logger.debug("Operator - find all objects including inactive");
 				return this.objects
 						.findAllByAlias(alias,
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			default:
+				this.logger.error("Unexpected value: " + role);
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
 	}
@@ -459,25 +544,33 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 	public List<ObjectBoundary> getObjectsByAliasPattern(String pattern, String userSystemID, String userEmail,
 			int size, int page) {
 
+		this.logger.trace("getObjectsByAliasPattern(" + pattern + ", " + userSystemID + ", " + userEmail + ", " + size + ", " + page + ")");
+
 		UserRole role = users.getUserRole(userSystemID, userEmail);
+
+		this.logger.debug("UserRole: " + role.toString());
 
 		switch (role) {
 			case ADMIN:
+				this.logger.error("Searching an object by alias pattern is unauthorized for admin users!");
 				throw new UserUnauthorizedException(
 						"Searching an object by alias pattern is unauthorized for admin users!");
 
 			case END_USER:
+				this.logger.debug("End user - find only active objects");
 				return this.objects
 						.findAllByAliasLikeAndActiveTrue("%" + pattern + "%",
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 
 			case OPERATOR:
+				this.logger.debug("Operator - find all objects including inactive");
 				return this.objects
 						.findAllByAliasLike("%" + pattern + "%",
 								PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
 						.stream().map(this.converter::toBoundary).toList();
 			default:
+				this.logger.error("Unexpected value: " + role);
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
 	}
