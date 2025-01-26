@@ -47,21 +47,20 @@ public class CommandController {
         path = {"/aii/commands"},
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommandBoundary[] addNewCommand(@RequestBody CommandBoundary newCommand) {
+    public Object[] addNewCommand(@RequestBody CommandBoundary newCommand) {
 
     // Pass the command to the service layer for processing
     List<Object> result = this.commands.invokeCommand(newCommand);
 
     // Ensure the returned list contains only CommandBoundary objects
-    List<CommandBoundary> commandBoundaries =
+    List<Object> commandBoundaries =
         result
             .stream()
-            .filter(obj -> obj instanceof CommandBoundary) // Ensure type safety
-            .map(obj -> (CommandBoundary) obj)
+            .map(obj -> (Object) obj)
             .collect(Collectors.toList());
 
     // Convert the list to an array
-    return commandBoundaries.toArray(new CommandBoundary[0]);
+    return commandBoundaries.toArray(new Object[0]);
 }
 
     // DELETE all commands
