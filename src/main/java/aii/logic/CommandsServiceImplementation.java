@@ -3,6 +3,7 @@ package aii.logic;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,6 +158,20 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
 
 
         this.commands.save(commandEntity);
+
+        int size = 100;
+        int page = 0;
+
+        switch(newCommand.getCommand()) {
+        case "Get_plants_for_watering":
+            return this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page)
+            		.stream()
+                    .map(o -> (Object)o)
+                    .collect(Collectors.toList());
+
+        default:
+        	break;
+        }
 
         CommandBoundary response = new CommandBoundary(commandEntity);
 
