@@ -100,3 +100,6 @@ local.properties
 *.iml
 *.iws
 .idea/
+
+# Secrets:
+src/main/scripts/credentials.json
