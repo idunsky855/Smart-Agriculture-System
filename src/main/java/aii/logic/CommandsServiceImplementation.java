@@ -1,7 +1,10 @@
 package aii.logic;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -163,14 +166,45 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         int page = 0;
 
         switch(newCommand.getCommand()) {
-        case "Get_plants_for_watering":
-            return this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page)
-            		.stream()
-                    .map(o -> (Object)o)
-                    .collect(Collectors.toList());
+        	case "Get_plants_for_watering":
+        		return this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page)
+        				.stream()
+        				.map(o -> (Object)o)
+        				.collect(Collectors.toList());
+        		
+        	case "Water_plants": {
+        		List<ObjectBoundary> plantsToWater = this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page);
+        		  for (Iterator iterator = plantsToWater.iterator(); iterator.hasNext();) {
+					ObjectBoundary objectBoundary = (ObjectBoundary) iterator.next();
+					Map<String, Object> details = objectBoundary.getObjectDetails();
+			        Set<String> keys = details.keySet();
 
-        default:
-        	break;
+			        UserBoundary userBoundary = new UserBoundary();
+			        userBoundary.setUserId(ui);
+
+			        if ((keys.contains("isRaining") && details.get("isRaining") instanceof Boolean) || 
+			        		!keys.contains("isRaining")) {
+			            Boolean isRaining = keys.contains("isRaining") ? (boolean) details.get("isRaining") : false;
+			            if (!isRaining) {
+			            	if (keys.contains("optimalSoilMoistureLevel") &&
+			                        details.get("optimalSoilMoistureLevel") != null &&
+			                        details.get("optimalSoilMoistureLevel") instanceof Integer) {
+			            		details.put("currentSoilMoistureLevel", details.get("optimalSoilMoistureLevel"));
+			            		userBoundary.setRole(UserRole.OPERATOR);
+			            		users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary);
+			            		objects.update(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId(), objectBoundary);
+			            		userBoundary.setRole(UserRole.END_USER);
+			            		users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary);
+			            	}
+			            }  
+			        }
+				}
+        		return plantsToWater.stream()
+        				.map(o -> (Object)o)
+        				.collect(Collectors.toList());
+        	}
+        	default:
+        		break;
         }
 
         CommandBoundary response = new CommandBoundary(commandEntity);

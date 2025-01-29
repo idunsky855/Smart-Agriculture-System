@@ -588,9 +588,9 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 				.stream().map(this.converter::toBoundary).toList();
 
 			case OPERATOR:
-				/*return this.objects
-						.findAllByTypePlantAndCurrentSoilMoistureLevelLessThanOptimalSoilMoistureLevel(PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
-						.stream().map(this.converter::toBoundary).toList();*/
+				return this.objects.findAllByTypeIsPlantAndNeedWatering(
+					     PageRequest.of(page, size))
+				.stream().map(this.converter::toBoundary).toList();
 			default:
 				throw new IllegalArgumentException("Unexpected value: " + role);
 		}
