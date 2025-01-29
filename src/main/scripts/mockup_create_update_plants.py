@@ -40,7 +40,8 @@ def create_plant_objects():
                 "currentSoilMoistureLevel": 0,
                 "optimalSoilMoistureLevel": 93,
                 "currentLightLevelIntensity": 70,
-                "optimalLightLevelIntensity": 100
+                "optimalLightLevelIntensity": 100,
+                "isRaining": False
             }
         }
 
@@ -132,10 +133,15 @@ def update_plant_objects(object_ids, secrets):
         current_data = response_get.json()
         new_soil_moisture = current_data["objectDetails"]["currentSoilMoistureLevel"]
 
+        is_raining = False
+
         # Update soil moisture if precipitation > 0
         if precip_mm > 0:
             print(f"Rain detected, updating soil moisture. Current: {new_soil_moisture}, New: {new_soil_moisture + 5}")
             new_soil_moisture += 5
+
+            # Update isRaining to True:
+            is_raining = True
         else:
             print(f"No rain detected, updating soil moisture. Current: {new_soil_moisture}, New: {new_soil_moisture}")
 
@@ -168,7 +174,8 @@ def update_plant_objects(object_ids, secrets):
                 "optimalSoilMoistureLevel": 93,
                 "currentLightLevelIntensity": current_data["objectDetails"]["currentLightLevelIntensity"],
                 "optimalLightLevelIntensity": 100,
-                "relatedObjectId": full_id
+                "relatedObjectId": full_id,
+                "isRaining": is_raining
             }
         }
 
