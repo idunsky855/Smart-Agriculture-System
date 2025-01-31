@@ -118,25 +118,25 @@ public class Activity_Plant extends AppCompatActivity {
         try {
             moisture = plant.getCurrentSoilMoistureLevel() + ""; //plant.getObjectDetails().get("currentSoilMoistureLevel") + "";
         } catch (Exception ex) {
-            Log.e("ERROR", "Error occured :" + ex.getMessage());
+            Log.e("ERROR", "Error occurred :" + ex.getMessage());
         }
 
         try {
             moistureDesc = "optimal soil level intensity is " + plant.getOptimalSoilMoistureLevel()+"%"; //plant.getObjectDetails().get("optimalSoilMoistureLevel");
         } catch (Exception ex) {
-            Log.e("ERROR", "Error occured :" + ex.getMessage());
+            Log.e("ERROR", "Error occurred :" + ex.getMessage());
         }
 
         try {
             lightning = plant.getCurrentLightLevelIntensity() + ""; //plant.getObjectDetails().get("currentLightLevelIntensity") + "";
         } catch (Exception ex) {
-            Log.e("ERROR", "Error occured :" + ex.getMessage());
+            Log.e("ERROR", "Error occurred :" + ex.getMessage());
         }
 
         try {
             lightningDesc = "optimal light level intensity is " + plant.getOptimalLightLevelIntensity() +"%"; //plant.getObjectDetails().get("optimalLightLevelIntensity");
         } catch (Exception ex) {
-            Log.e("ERROR", "Error occured :" + ex.getMessage());
+            Log.e("ERROR", "Error occurred :" + ex.getMessage());
         }
 
         String name = plant.getAlias();
@@ -159,7 +159,7 @@ public class Activity_Plant extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
         }
 
-        if ((boolean)plant.getObjectDetails().getOrDefault("isRaining", false) == true) {
+        if ((boolean) plant.getObjectDetails().getOrDefault("isRaining", false)) {
             Toast.makeText(getApplicationContext(), "already raining",Toast.LENGTH_SHORT).show();
             return;
         }
@@ -176,6 +176,8 @@ public class Activity_Plant extends AppCompatActivity {
         if (toReset) {
             temp.getObjectDetails().put("currentSoilMoistureLevel", 0);
         }
+        // don't change the image
+        temp.getObjectDetails().put("Image",this.plant.getImage());
 
         plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
 
@@ -201,6 +203,9 @@ public class Activity_Plant extends AppCompatActivity {
         newValue = Math.min(newValue, 100);
         newValue = Math.max(newValue, 0);
         temp.getObjectDetails().put("currentLightLevelIntensity", newValue);
+
+        // don't change the image
+        temp.getObjectDetails().put("Image",this.plant.getImage());
 
         plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
     }

@@ -23,7 +23,7 @@
             android:layout_centerHorizontal="true"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/img_logo" />
+            android:src="@drawable/plant_logo" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/LBL_title"

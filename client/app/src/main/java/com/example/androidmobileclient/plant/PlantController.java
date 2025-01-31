@@ -75,10 +75,10 @@ public class PlantController {
     private final Callback<Plant> plantCallback = new Callback<Plant>() {
         @Override
         public void onResponse(Call<Plant> call, Response<Plant> response) {
-            //if (myPlantCallBack == null) {
-            //    Log.d("ptttt", "response: " + response.body());
-            //    return;
-            //}
+            if (myPlantCallBack == null) {
+                Log.d("ptttt", "response: " + response.body());
+                return;
+            }
             if(response.code() >= 200 && response.code() < 300) {
                 Log.d("ptttt", "response: " + response.body());
                 myPlantCallBack.ready(response.body());
@@ -108,9 +108,9 @@ public class PlantController {
     private final Callback<List<Plant>> plantsCallback = new Callback<List<Plant>>() {
         @Override
         public void onResponse(Call<List<Plant>> call, Response<List<Plant>> response) {
-            //if (myPlantsCallBack == null) {
-            //    return;
-            //}
+            if (myPlantsCallBack == null) {
+                return;
+            }
             if(response.code() >= 200 && response.code() < 300) {
                 Log.d("ptttt", "response: " + response.body());
                 myPlantsCallBack.ready(response.body());
@@ -130,9 +130,9 @@ public class PlantController {
         @Override
         public void onFailure(Call<List<Plant>> call, Throwable throwable) {
             Log.d("ptttt","error - " + throwable.getMessage());
-            //if (myPlantsCallBack == null) {
-            //    return;
-            //}
+            if (myPlantsCallBack == null) {
+                return;
+            }
             myPlantsCallBack.failed(throwable);
         }
     };

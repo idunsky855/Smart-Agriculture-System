@@ -83,7 +83,9 @@ public class Activity_NewPlant extends AppCompatActivity {
                     .setStatus(status)
                     .setLocation(lat,lng)
                     .setOptimalSoilMoistureLevel(optimalMoistureLvl)
+                    .setCurrentSoilMoistureLevel(0)
                     .setOptimalLightLevelIntensity(optimalLightIntensity)
+                    .setCurrentLightLevelIntensity(0)
                     .setActive(active)
                     .setCreatedBy(systemID,userEmail);
 
@@ -104,6 +106,7 @@ public class Activity_NewPlant extends AppCompatActivity {
 
     private void plantCreated(Plant plant) {
         Toast.makeText(this, plant.getAlias() + " created successfully", Toast.LENGTH_SHORT).show();
+        //Integer prev = getIntent()
         //Intent intent = new Intent(this, Activity_Plants.class);
         //intent.putExtra("systemID",systemID);
         //intent.putExtra("userEmail", userEmail);

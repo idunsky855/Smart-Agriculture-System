@@ -46,13 +46,20 @@ public class Activity_Plants extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initList();
+        updateList();
+    }
+
     private void initList() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         binding.LSTPlants.setLayoutManager(gridLayoutManager);
 
         plantList = new ArrayList<>();
 
-        adapter = new Adapter_Plant(plantList);
+        adapter = new Adapter_Plant(this,plantList);
         adapter.setListener((plant, position) -> plantClicked(plant));
         binding.LSTPlants.setAdapter(adapter);
     }

@@ -149,6 +149,12 @@ public class Plant {
     }
 
 
+    public Plant setCurrentSoilMoistureLevel(Integer currentSoilMoistureLevel) {
+        objectDetails.put("currentSoilMoistureLevel",currentSoilMoistureLevel);
+        return this;
+    }
+
+
     public Integer getCurrentLightLevelIntensity() {
         if(objectDetails.containsKey("currentLightLevelIntensity") &&
                 objectDetails.get("currentLightLevelIntensity") != null) {
@@ -158,6 +164,11 @@ public class Plant {
         return null;
     }
 
+
+    public Plant setCurrentLightLevelIntensity(Integer currentLightLevelIntensity) {
+        objectDetails.put("currentLightLevelIntensity",currentLightLevelIntensity);
+        return this;
+    }
 
     public Integer getOptimalSoilMoistureLevel() {
         if(objectDetails.containsKey("optimalSoilMoistureLevel") &&
@@ -183,10 +194,25 @@ public class Plant {
         return null;
     }
 
+    public Plant setImage(String image) {
+        objectDetails.put("Image",image);
+        return this;
+    }
+
+
+    public String getImage() {
+        if(objectDetails.containsKey("Image") &&
+                objectDetails.get("Image") != null) {
+            return (String)objectDetails.get("Image");
+        }
+        return null;
+    }
+
     public Plant setOptimalLightLevelIntensity(Integer optimalLightLevelIntensity) {
         objectDetails.put("optimalLightLevelIntensity",optimalLightLevelIntensity);
         return this;
     }
+
 
     public ObjectId getObjectId() {
         return objectId;
@@ -229,4 +255,5 @@ public class Plant {
                 ", objectDetails=" + objectDetails +
                 '}';
     }
+
 }
