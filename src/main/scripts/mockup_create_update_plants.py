@@ -14,8 +14,55 @@ LON = 36.8219  # (Nairobi, Kenya)
 LAT = 25.2986
 LON = 91.5822
 
+PLANT_ALIASES = ["rose", "tulip", "daisy", "lily", "orchid"]
+
+
+def get_plant_images(alias_of_plant, secrets):
+    """
+    This function retrieves plant images from Perenual API.
+    It returns an image URL for the given plant alias.
+    """
+
+    search_url = f"{secrets['plant_images']['plant_images_url']}?key={secrets['plant_images']['plant_images_api_key']}&q={alias_of_plant}"
+
+    try:
+        # Make request to plant images API
+        response = requests.get(search_url)
+
+        if response.status_code == 200:
+            data = response.json()
+
+            if data['data']:
+                # Get the first matching plant
+                plant = data['data'][0]
+                default_image = plant.get('default_image', {})
+
+                # Check if the image exists
+                image_url = default_image.get('original_url')
+
+                if image_url:
+                    print(f"Image URL: {image_url}")
+                    return image_url
+                else:
+                    print(f"No image available for '{alias_of_plant}', returning None.")
+            else:
+                print(f"No matching plants found for '{alias_of_plant}', returning None.")
+        else:
+            print(f"Error: {response.status_code}, API response: {response.text}")
+
+        return None
+
+    except requests.RequestException as e:
+        print(f"Error fetching plant images: {e}")
+        return None
+
+    except Exception as e:
+        print(f"Something went wrong: {str(e)}")
+        return None
+
+
 # Function to create plant objects
-def create_plant_objects():
+def create_plant_objects(secrets):
     object_ids = []
 
     for i in range(5):
@@ -44,7 +91,8 @@ def create_plant_objects():
                 "optimalSoilMoistureLevel": 93,
                 "currentLightLevelIntensity": 70,
                 "optimalLightLevelIntensity": 100,
-                "isRaining": False
+                "isRaining": False,
+                "Image": get_plant_images(PLANT_ALIASES[i], secrets)
             }
         }
 
@@ -58,6 +106,7 @@ def create_plant_objects():
             print(f"Failed to create object: {response.status_code}, {response.text}")
 
     return object_ids
+
 
 # Function to check weather
 def check_weather(lat, lon, secrets):
@@ -134,7 +183,12 @@ def update_plant_objects(object_ids, secrets):
 
         # Object data is valid, continue with updating object:
         current_data = response_get.json()
+
+        # Get current soil moisture level
         new_soil_moisture = current_data["objectDetails"]["currentSoilMoistureLevel"]
+
+        # Get image URL:
+        image_url = current_data["objectDetails"]["Image"]
 
         is_raining = False
 
@@ -176,7 +230,8 @@ def update_plant_objects(object_ids, secrets):
                 "currentLightLevelIntensity": current_data["objectDetails"]["currentLightLevelIntensity"],
                 "optimalLightLevelIntensity": 100,
                 "relatedObjectId": full_id,
-                "isRaining": is_raining
+                "isRaining": is_raining,
+                "Image": image_url
             }
         }
 
@@ -207,7 +262,7 @@ def main():
         return
 
     print("Creating plant objects...")
-    object_ids = create_plant_objects()
+    object_ids = create_plant_objects(secrets)
 
     # Debug:
     print("Created objects:", object_ids)
