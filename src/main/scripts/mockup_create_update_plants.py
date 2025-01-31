@@ -11,19 +11,22 @@ HEADERS = {"Content-Type": "application/json"}
 LAT = -1.2921  # (Nairobi, Kenya)
 LON = 36.8219  # (Nairobi, Kenya)
 
+LAT = 25.2986
+LON = 91.5822
+
 # Function to create plant objects
 def create_plant_objects():
     object_ids = []
 
-    for _ in range(5):
+    for i in range(5):
         payload = {
             "objectId": {
                 "systemID": SYSTEM_ID,
                 "id": "string"
             },
             "type": "Plant",
-            "alias": "Flower",
-            "status": "AVAILABLE",
+            "alias": f"Flower {i+1}",
+            "status": "Flowering",
             "location": {
                 "lat": LAT,
                 "lng": LON
@@ -155,8 +158,6 @@ def update_plant_objects(object_ids, secrets):
                 "id": obj_id
             },
             "type": "Plant",
-            "alias": "Flower",
-            "status": "AVAILABLE",
             "location": {
                 "lat": LAT,
                 "lng": LON
