@@ -2,6 +2,7 @@ package aii.logic;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -269,23 +270,52 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 	}
 
 	@PostConstruct
-	private void initializeDefaultUser() {
-		this.logger.trace("initializeDefaultUser()");
+	private void init() {
+		this.logger.trace("init()");
+		CompletableFuture.runAsync(this::initializeDefaultUsers);
+	}
 
-		UserBoundary defaultUser = new UserBoundary();
+	@Transactional
+	private void initializeDefaultUsers() {
+		this.logger.trace("initializeDefaultUsers()");
+
+		this.logger.debug("Creating default sensor user");
+
+		UserBoundary defaultSensorUser = new UserBoundary();
 
 		// Crate user with email: sensor@default.com and id: 2025a.Liron.Barshishat:
-		defaultUser.setUserId(new UserId("2025a.Liron.Barshishat", "sensor@default.com"));
-		defaultUser.setUsername("Sensor");
-		defaultUser.setRole(UserRole.OPERATOR);
-		defaultUser.setAvatar("sensor");
+		defaultSensorUser.setUserId(new UserId("2025a.Liron.Barshishat", "sensor@default.com"));
+		defaultSensorUser.setUsername("Sensor");
+		defaultSensorUser.setRole(UserRole.OPERATOR);
+		defaultSensorUser.setAvatar("sensor");
 
 		// Verify that the user does not exist in the database when DB is not empty on startup:
-		if (!login(defaultUser.getUserId().getSystemID(), defaultUser.getUserId().getEmail()).isEmpty()) {
-			this.logger.debug("User already exists when creating default user: " + defaultUser.getUserId().getEmail());
+		if (!login(defaultSensorUser.getUserId().getSystemID(), defaultSensorUser.getUserId().getEmail()).isEmpty()) {
+			this.logger.debug("User already exists when creating default user: " + defaultSensorUser.getUserId().getEmail());
 		} else {
 			// Call createUser to insert the default user to the database:
-			createUser(defaultUser);
+			createUser(defaultSensorUser);
 		}
+
+		this.logger.debug("Default sensor user created");
+		this.logger.debug("Creating defailt irrigation user");
+
+		UserBoundary defaultIrrigationUser = new UserBoundary();
+
+		// Crate user with email: irrigation@default.com and id: 2025a.Liron.Barshishat:
+		defaultIrrigationUser.setUserId(new UserId("2025a.Liron.Barshishat", "irrigation@default.com"));
+		defaultIrrigationUser.setUsername("Irrigation");
+		defaultIrrigationUser.setRole(UserRole.END_USER);
+		defaultIrrigationUser.setAvatar("irrigation");
+
+		// Verify that the user does not exist in the database when DB is not empty on startup:
+		if (!login(defaultIrrigationUser.getUserId().getSystemID(), defaultIrrigationUser.getUserId().getEmail()).isEmpty()) {
+			this.logger.debug("User already exists when creating default user: " + defaultIrrigationUser.getUserId().getEmail());
+		} else {
+			// Call createUser to insert the default user to the database:
+			createUser(defaultIrrigationUser);
+		}
+
+		this.logger.debug("Default irrigation user created");
 	}
 }

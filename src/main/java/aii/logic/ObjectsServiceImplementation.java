@@ -1,5 +1,6 @@
 package aii.logic;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +27,7 @@ import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.ObjectNotFoundException;
 import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class ObjectsServiceImplementation implements EnhancedObjectsService {
@@ -596,4 +600,89 @@ public class ObjectsServiceImplementation implements EnhancedObjectsService {
 		}
 	}
 
+	@PostConstruct
+	private void init() {
+		this.logger.trace("init()");
+		CompletableFuture.runAsync(() -> initializeDefaultObject(), Executors.newSingleThreadExecutor());
+	}
+
+	@Transactional
+	public void initializeDefaultObject() {
+		this.logger.trace("initializeDefaultObject()");
+
+		// Create a default object for irrigation system:
+		ObjectBoundary defaultObject = new ObjectBoundary();
+
+		// Verify user irrigation@default.com already been created to prevent race condition with initialization of users:
+		Optional<UserBoundary> user = this.users.login("2025a.Liron.Barshishat", "irrigation@default.com");
+
+		if (!user.isEmpty()) {
+			logger.debug("User irrigation has been created before object initialization, continuing...");
+
+			defaultObject.setObjectId(new ObjectId(UUID.randomUUID().toString(), this.springApplicationName));
+			defaultObject.setType("irrigation_system");
+			defaultObject.setAlias("default_irrigation_system");
+			defaultObject.setStatus("active");
+			defaultObject.setLocation(new Location(37.4220, -122.0841));
+			defaultObject.setActive(true);
+			defaultObject.setCreationTimestamp(new Date());
+
+			// Crated by sensor user:
+			Optional<UserBoundary> sensorUser = this.users.login("2025a.Liron.Barshishat", "sensor@default.com");
+
+			if (!sensorUser.isEmpty()) {
+				this.logger.debug("Sensor user has been created before object initialization, continuing...");
+				defaultObject.setCreatedBy(new CreatedBy(sensorUser.get().getUserId()));
+
+				// Set default object details:
+				Map<String, Object> details = new HashMap<>();
+				defaultObject.setObjectDetails(details);
+
+				// Before saving, verify that if the user is not exist in the DB:
+				String alias = "default_irrigation_system";
+				int page = 0;
+				int size = 10;
+
+				this.logger.debug("Checking if default irrigation object already exists in the database...");
+				List<ObjectBoundary> op = new ArrayList<>();
+				try {
+					op = this.objects.findAllByAlias(alias,
+						PageRequest.of(page, size, Direction.DESC, "creationTime", "objectId"))
+							.stream()
+							.map(this.converter::toBoundary)
+							.toList();
+				} catch (Exception e) {
+					// When the object is found - the exception will be thrown due to LOB stream access.
+					// This is ok and expected, as the object is there on validate DB and not create-drop.
+					this.logger.error("Error while trying to find default irrigation object in the database: " + e.getMessage());
+					return;
+				}
+
+				// Just in case the exception did not occur on existing object as expected due to asyncronous nature of the thread:
+				if (!op.isEmpty()) {
+					this.logger.debug("Default irrigation object already exists in the database, not creating a new default object");
+					return;
+				}
+
+				// Object not found - proceed with creating the default object:
+				this.logger.debug("Default irrigation object not found in the database, creating a new default object");
+
+				// Save the default object to the database:
+				this.objects.save(this.converter.toEntity(defaultObject));
+
+				//DEBUG:
+				this.logger.debug("Default irrigation object created successfully!");
+
+			} else {
+				// Sensor user is not created yet.
+				// (Should not happened as race condition has been checked and users will be initialized before objects - but just in case).
+				this.logger.error("Sensor user is not created yet");
+			}
+
+		} else {
+			// Irrigation user is not created yet.
+			// (Should not happened as race condition has been checked and users will be initialized before objects - but just in case).
+			this.logger.error("User irrigation is not created yet");
+		}
+	}
 }
