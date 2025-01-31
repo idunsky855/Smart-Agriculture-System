@@ -1,5 +1,6 @@
 package com.example.androidmobileclient;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
@@ -213,7 +214,16 @@ public class Activity_Plant extends AppCompatActivity {
     private void editClicked() {
         if (plant == null) {
             Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        Intent intent = new Intent(this, Activity_EditPlant.class);
+        intent.putExtra("plantSystemID",plantSystemID);
+        intent.putExtra("plantId",plantId);
+        intent.putExtra("userSystemID",userSystemID);
+        intent.putExtra("userEmail",userEmail);
+        startActivity(intent);
+        finish();
     }
 
 }

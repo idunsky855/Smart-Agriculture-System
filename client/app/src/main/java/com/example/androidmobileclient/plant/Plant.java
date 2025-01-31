@@ -45,14 +45,6 @@ public class Plant {
         return this;
     }
 
-   /* public String getImage() {
-        return image;
-    }
-
-    public Plant setImage(String image) {
-        this.image = image;
-        return this;
-    }*/
 
     public HashMap<String, Object> getObjectDetails() {
         return objectDetails;
@@ -139,7 +131,6 @@ public class Plant {
 
 
     public Integer getCurrentSoilMoistureLevel() {
-        //return currentSoilMoistureLevel;
         if(objectDetails.containsKey("currentSoilMoistureLevel") &&
                 objectDetails.get("currentSoilMoistureLevel") != null) {
             double value = (Double) objectDetails.get("currentSoilMoistureLevel");
