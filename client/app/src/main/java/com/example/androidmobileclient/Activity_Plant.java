@@ -223,7 +223,7 @@ public class Activity_Plant extends AppCompatActivity {
         intent.putExtra("userSystemID",userSystemID);
         intent.putExtra("userEmail",userEmail);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
 }
