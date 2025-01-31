@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingHorizontal="64dp"
+        android:paddingHorizontal="32dp"
         android:paddingVertical="32dp">
 
         <androidx.appcompat.widget.AppCompatImageView

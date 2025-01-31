@@ -61,22 +61,6 @@
             />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/BTN_newSenor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="add a new sensor"
-            />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/BTN_viewSystemSensors"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="view system sensors"
-            />
-
-        <com.google.android.material.button.MaterialButton
             android:id="@+id/BTN_irrigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

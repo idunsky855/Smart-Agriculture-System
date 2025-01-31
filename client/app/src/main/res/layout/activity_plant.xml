@@ -2,9 +2,11 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/main"
+    android:keepScreenOn="true"
     >
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -168,10 +170,10 @@
             android:id="@+id/LAY_lighting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="true"
+            android:focusable="false"
             app:cardCornerRadius="22dp"
             app:cardElevation="9dp"
-            android:clickable="true"
+            android:clickable="false"
             android:layout_marginVertical="16dp"
             android:layout_marginHorizontal="32dp"
             >
@@ -205,13 +207,29 @@
                     app:layout_constraintStart_toEndOf="@+id/plant2IconImageView"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_switch"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/BTN_lightningP"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    app:icon="@drawable/ic_plus"
+                    app:iconSize="36dp"
+                    app:iconTint="#ffffff"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#ffffff" />
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/BTN_lightningM"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="16dp"
+                    app:icon="@drawable/ic_minus"
+                    app:iconSize="36dp"
+                    app:iconTint="#ffffff"
+                    app:layout_constraintEnd_toStartOf="@+id/BTN_lightningP"
+                    app:layout_constraintTop_toTopOf="@+id/BTN_lightningP" />
+
 
 
                 <com.google.android.material.textview.MaterialTextView

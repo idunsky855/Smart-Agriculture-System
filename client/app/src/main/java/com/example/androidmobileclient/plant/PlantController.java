@@ -54,9 +54,31 @@ public class PlantController {
         call.enqueue(plantCallback);
     }
 
+    public void addNewPlant(Plant plant, MyCallBack<Plant> myCallBack){
+        this.myPlantCallBack = myCallBack;
+
+        Call<Plant> call = getAPI().createPlant(plant);
+
+        call.enqueue(plantCallback);
+    }
+
+
+    public void updatePlant(String plantSystemID, String plantId, String userSystemID, String userEmail, Plant plant, MyCallBack<Plant> myCallBack) {
+        this.myPlantCallBack = myCallBack;
+
+        Call<Plant> call = getAPI().updatePlant(plantSystemID, plantId, userSystemID, userEmail, plant);
+
+        call.enqueue(plantCallback);
+    }
+
+
     private final Callback<Plant> plantCallback = new Callback<Plant>() {
         @Override
         public void onResponse(Call<Plant> call, Response<Plant> response) {
+            //if (myPlantCallBack == null) {
+            //    Log.d("ptttt", "response: " + response.body());
+            //    return;
+            //}
             if(response.code() >= 200 && response.code() < 300) {
                 Log.d("ptttt", "response: " + response.body());
                 myPlantCallBack.ready(response.body());
@@ -68,7 +90,7 @@ public class PlantController {
                 }else{
                     error = "HTTP ERROR: " + response.code() + " Bad Request";
                 }
-                myPlantsCallBack.failed(new Exception(error));
+                myPlantCallBack.failed(new Exception(error));
                 Log.d("ptttt", error);
             }
         }
@@ -76,6 +98,9 @@ public class PlantController {
         @Override
         public void onFailure(Call<Plant> call, Throwable throwable) {
             Log.d("ptttt","error - " + throwable.getMessage());
+           if (myPlantCallBack == null) {
+               return;
+           }
             myPlantCallBack.failed(throwable);
         }
     };
@@ -83,6 +108,9 @@ public class PlantController {
     private final Callback<List<Plant>> plantsCallback = new Callback<List<Plant>>() {
         @Override
         public void onResponse(Call<List<Plant>> call, Response<List<Plant>> response) {
+            //if (myPlantsCallBack == null) {
+            //    return;
+            //}
             if(response.code() >= 200 && response.code() < 300) {
                 Log.d("ptttt", "response: " + response.body());
                 myPlantsCallBack.ready(response.body());
@@ -102,6 +130,9 @@ public class PlantController {
         @Override
         public void onFailure(Call<List<Plant>> call, Throwable throwable) {
             Log.d("ptttt","error - " + throwable.getMessage());
+            //if (myPlantsCallBack == null) {
+            //    return;
+            //}
             myPlantsCallBack.failed(throwable);
         }
     };

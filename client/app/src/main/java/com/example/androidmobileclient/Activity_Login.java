@@ -39,7 +39,7 @@ public class Activity_Login extends AppCompatActivity {
         binding.BTNLogin.setOnClickListener(view -> loginClicked());
         binding.BTNSignUp.setOnClickListener(view -> signUpClicked());
 
-        binding.IMGLogo.setOnClickListener(view -> binding.EDTEmail.getEditText().setText("eli@gmail.com"));
+        binding.IMGLogo.setOnClickListener(view -> binding.EDTEmail.getEditText().setText("sensor@default.com"));
 
     }
 
@@ -50,13 +50,12 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     private void loginClicked() {
-        final String systemID = "2025a.Liron.Barshishat";
 
         String email = binding.EDTEmail.getEditText().getText().toString();
 
         UserController userController = new UserController();
 
-        userController.userLogin(systemID, email, new UserController.UserCallBack<User>() {
+        userController.userLogin(App.SYSTEM_ID, email, new UserController.UserCallBack<User>() {
             @Override
             public void ready(User data) {
                 userReceived(data);

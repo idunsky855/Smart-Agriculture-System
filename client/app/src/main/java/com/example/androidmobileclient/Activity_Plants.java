@@ -85,15 +85,18 @@ public class Activity_Plants extends AppCompatActivity {
 
     private void plantClicked(Plant plant) {
         Intent intent = new Intent(this, Activity_Plant.class);
-        intent.putExtra("plantSystemID", plant.objectId.systemID);
-        intent.putExtra("plantId", plant.objectId.id);
-        intent.putExtra("userSystemID", plant.createdBy.userId.systemID);
-        intent.putExtra("userEmail", plant.createdBy.userId.email);
+        intent.putExtra("plantSystemID", plant.getObjectId().systemID);
+        intent.putExtra("plantId", plant.getObjectId().id);
+        intent.putExtra("userSystemID", plant.getCreatedBy().userId.systemID);
+        intent.putExtra("userEmail", plant.getCreatedBy().userId.email);
         startActivity(intent);
     }
 
     private void addNewClicked() {
-
+        Intent intent = new Intent(this, Activity_NewPlant.class);
+        intent.putExtra("systemID", getIntent().getStringExtra("systemID"));
+        intent.putExtra("userEmail", getIntent().getStringExtra("userEmail"));
+        startActivity(intent);
     }
 
 }

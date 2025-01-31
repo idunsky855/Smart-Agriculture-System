@@ -36,8 +36,6 @@ public class Activity_Menu extends AppCompatActivity {
 
         binding.BTNNewPlant.setOnClickListener(v -> addNewPlant());
         binding.BTNViewAllPlant.setOnClickListener(v -> viewAllPlants());
-        binding.BTNNewSenor.setOnClickListener(v -> newSenor());
-        binding.BTNViewSystemSensors.setOnClickListener(v -> viewSystemSensors());
         binding.BTNEditProfile.setOnClickListener(v -> editProfile());
 
         systemID = getIntent().getStringExtra("systemID");
@@ -49,7 +47,10 @@ public class Activity_Menu extends AppCompatActivity {
     }
 
     private void addNewPlant() {
-
+        Intent intent = new Intent(this, Activity_NewPlant.class);
+        intent.putExtra("systemID", systemID);
+        intent.putExtra("userEmail", userEmail);
+        startActivity(intent);
     }
 
     private void viewAllPlants() {
@@ -57,14 +58,6 @@ public class Activity_Menu extends AppCompatActivity {
         intent.putExtra("systemID", systemID);
         intent.putExtra("userEmail", userEmail);
         startActivity(intent);
-    }
-
-    private void newSenor() {
-
-    }
-
-    private void viewSystemSensors() {
-
     }
 
     private void editProfile() {

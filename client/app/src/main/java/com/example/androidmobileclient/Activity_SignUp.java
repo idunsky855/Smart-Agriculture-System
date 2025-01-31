@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -41,9 +40,9 @@ public class Activity_SignUp extends AppCompatActivity {
         binding.BTNSignUp.setOnClickListener(view -> signUpClicked());
 
         binding.BTNSignUp.setEnabled(false);
-        binding.txtEmail.addTextChangedListener(LoginWatcher);
-        binding.txtUsername.addTextChangedListener(LoginWatcher);
-        binding.ddRole.addTextChangedListener(LoginWatcher);
+        binding.txtEmail.addTextChangedListener(signupWatcher);
+        binding.txtUsername.addTextChangedListener(signupWatcher);
+        binding.ddRole.addTextChangedListener(signupWatcher);
 
 
         String[] items = new String[] {
@@ -97,7 +96,7 @@ public class Activity_SignUp extends AppCompatActivity {
         finish();
     }
 
-    TextWatcher LoginWatcher = new TextWatcher() {
+    TextWatcher signupWatcher = new TextWatcher() {
 
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2)

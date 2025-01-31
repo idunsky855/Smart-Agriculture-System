@@ -1,6 +1,7 @@
 package com.example.androidmobileclient;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,8 @@ import com.example.androidmobileclient.databinding.ActivityPlantBinding;
 import com.example.androidmobileclient.plant.Plant;
 import com.example.androidmobileclient.plant.PlantController;
 
+import android.util.Log;
+
 public class Activity_Plant extends AppCompatActivity {
 
     private ActivityPlantBinding binding;
@@ -21,6 +24,11 @@ public class Activity_Plant extends AppCompatActivity {
     private String plantId;
     private String userSystemID;
     private String userEmail;
+
+    private final int DELAY = 1000;
+    private final Handler handler = new Handler();
+    private Runnable runnable;
+    private Plant plant = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +51,35 @@ public class Activity_Plant extends AppCompatActivity {
         binding.LBLLightning.setText("");
         binding.LBLLightningDescription.setText("");
 
-        updateFromServer();
+        runnable = () -> {
+            updateFromServer();
+            handler.postDelayed(runnable, DELAY);
+        };
+
+        binding.LAYMoisture.setOnClickListener(view -> moistureClicked(false));
+        binding.LAYMoisture.setOnLongClickListener(view -> {
+            moistureClicked(true);
+            return true;
+        });
+        binding.BTNLightningP.setOnClickListener(view -> lightingClicked(true));
+        binding.BTNLightningM.setOnClickListener(view -> lightingClicked(false));
+        binding.BTNEdit.setOnClickListener(view -> editClicked());
     }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handler.postDelayed(runnable, 0);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handler.removeCallbacks(runnable);
+    }
+
 
     private void updateFromServer() {
         PlantController plantController = new PlantController();
@@ -57,7 +92,9 @@ public class Activity_Plant extends AppCompatActivity {
         plantController.getPlant(plantSystemID, plantId, userSystemID, userEmail, new PlantController.MyCallBack<Plant>() {
             @Override
             public void ready(Plant data) {
-                updateUI(data);
+                plant = data;
+                Log.d("ptttt","data: "+data);
+                updateUI();
             }
             @Override
             public void failed(Throwable throwable) {
@@ -67,10 +104,11 @@ public class Activity_Plant extends AppCompatActivity {
 
     }
 
-    private void updateUI(Plant plant) {
-        binding.LAYMoisture.setOnClickListener(view -> moistureClicked(plant));
-        binding.LAYLighting.setOnClickListener(view -> lightingClicked(plant));
-        binding.BTNEdit.setOnClickListener(view -> editClicked(plant));
+
+    private void updateUI() {
+        if (plant == null) {
+            Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
+        }
 
         String moisture = "NA";
         String moistureDesc= "NA";
@@ -78,28 +116,32 @@ public class Activity_Plant extends AppCompatActivity {
         String lightningDesc= "NA";
 
         try {
-            String s = plant.getObjectDetails().get("currentSoilMoistureLevel");
-            moisture = Integer.valueOf(s) + "";
-        } catch (Exception ex) {}
+            moisture = plant.getCurrentSoilMoistureLevel() + ""; //plant.getObjectDetails().get("currentSoilMoistureLevel") + "";
+        } catch (Exception ex) {
+            Log.e("ERROR", "Error occured :" + ex.getMessage());
+        }
 
         try {
-            String s = plant.getObjectDetails().get("optimalSoilMoistureLevel");
-            moistureDesc = "optimal soil level intensity is " + Integer.valueOf(s);
-        } catch (Exception ex) {}
+            moistureDesc = "optimal soil level intensity is " + plant.getOptimalSoilMoistureLevel()+"%"; //plant.getObjectDetails().get("optimalSoilMoistureLevel");
+        } catch (Exception ex) {
+            Log.e("ERROR", "Error occured :" + ex.getMessage());
+        }
 
         try {
-            String s = plant.getObjectDetails().get("currentLightLevelIntensity");
-            lightning = Integer.valueOf(s) + "";
-        } catch (Exception ex) {}
+            lightning = plant.getCurrentLightLevelIntensity() + ""; //plant.getObjectDetails().get("currentLightLevelIntensity") + "";
+        } catch (Exception ex) {
+            Log.e("ERROR", "Error occured :" + ex.getMessage());
+        }
 
         try {
-            String s = plant.getObjectDetails().get("optimalLightLevelIntensity");
-            lightningDesc = "optimal light level intensity is " + Integer.valueOf(s);
-        } catch (Exception ex) {}
+            lightningDesc = "optimal light level intensity is " + plant.getOptimalLightLevelIntensity() +"%"; //plant.getObjectDetails().get("optimalLightLevelIntensity");
+        } catch (Exception ex) {
+            Log.e("ERROR", "Error occured :" + ex.getMessage());
+        }
 
         String name = plant.getAlias();
-        String status = plant.status;
-        String location = plant.location.lat + ", " + plant.location.lng;
+        String status = plant.getStatus();
+        String location = plant.getLocation().lat + ", " + plant.getLocation().lng;
 
 
         binding.LBLName.setText(name);
@@ -111,15 +153,62 @@ public class Activity_Plant extends AppCompatActivity {
         binding.LBLLightningDescription.setText(lightningDesc);
     }
 
-    private void moistureClicked(Plant plant) {
+
+    private void moistureClicked(boolean toReset) {
+        if (plant == null) {
+            Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
+        }
+
+        if ((boolean)plant.getObjectDetails().getOrDefault("isRaining", false) == true) {
+            Toast.makeText(getApplicationContext(), "already raining",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        PlantController plantController = new PlantController();
+
+        plantSystemID = getIntent().getStringExtra("plantSystemID");
+        plantId = getIntent().getStringExtra("plantId");
+        userSystemID = getIntent().getStringExtra("userSystemID");
+        userEmail = getIntent().getStringExtra("userEmail");
+
+        Plant temp = new Plant();
+        temp.getObjectDetails().put("currentSoilMoistureLevel", plant.getOptimalSoilMoistureLevel());
+        if (toReset) {
+            temp.getObjectDetails().put("currentSoilMoistureLevel", 0);
+        }
+
+        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
 
     }
 
-    private void lightingClicked(Plant plant) {
+    private void lightingClicked(boolean isPlus) {
+        if (plant == null) {
+            Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
+        }
 
+        PlantController plantController = new PlantController();
+
+        plantSystemID = getIntent().getStringExtra("plantSystemID");
+        plantId = getIntent().getStringExtra("plantId");
+        userSystemID = getIntent().getStringExtra("userSystemID");
+        userEmail = getIntent().getStringExtra("userEmail");
+
+        Plant temp = new Plant();
+        Log.d("ptttt","test: "+ plant.getObjectDetails());
+        Log.d("ptttt","test: "+ plant.getObjectDetails().get("currentLightLevelIntensity"));
+        int value = plant.getCurrentLightLevelIntensity();
+        int newValue = value + (isPlus ? 10 : -10);
+        newValue = Math.min(newValue, 100);
+        newValue = Math.max(newValue, 0);
+        temp.getObjectDetails().put("currentLightLevelIntensity", newValue);
+
+        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
     }
 
-    private void editClicked(Plant plant) {
-
+    private void editClicked() {
+        if (plant == null) {
+            Toast.makeText(getApplicationContext(), "no plant",Toast.LENGTH_SHORT).show();
+        }
     }
+
 }
