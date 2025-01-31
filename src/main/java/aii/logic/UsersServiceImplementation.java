@@ -283,7 +283,7 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 
 		UserBoundary defaultSensorUser = new UserBoundary();
 
-		// Crate user with email: sensor@default.com and id: 2025a.Liron.Barshishat:
+		// Create user with email: sensor@default.com and id: 2025a.Liron.Barshishat:
 		defaultSensorUser.setUserId(new UserId("2025a.Liron.Barshishat", "sensor@default.com"));
 		defaultSensorUser.setUsername("Sensor");
 		defaultSensorUser.setRole(UserRole.OPERATOR);
@@ -298,11 +298,11 @@ public class UsersServiceImplementation implements EnhancedUsersService {
 		}
 
 		this.logger.debug("Default sensor user created");
-		this.logger.debug("Creating defailt irrigation user");
+		this.logger.debug("Creating default irrigation user");
 
 		UserBoundary defaultIrrigationUser = new UserBoundary();
 
-		// Crate user with email: irrigation@default.com and id: 2025a.Liron.Barshishat:
+		// Create user with email: irrigation@default.com and id: 2025a.Liron.Barshishat:
 		defaultIrrigationUser.setUserId(new UserId("2025a.Liron.Barshishat", "irrigation@default.com"));
 		defaultIrrigationUser.setUsername("Irrigation");
 		defaultIrrigationUser.setRole(UserRole.END_USER);
