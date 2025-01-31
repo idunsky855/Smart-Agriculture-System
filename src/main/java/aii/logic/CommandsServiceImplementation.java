@@ -24,9 +24,6 @@ import aii.logic.exceptions.InvalidInputException;
 import aii.logic.exceptions.UserUnauthorizedException;
 import aii.logic.utilities.EmailValidator;
 
-
-
-
 @Service
 public class CommandsServiceImplementation implements EnhancedCommandService {
     private CommandsCrud commands;
@@ -36,9 +33,8 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
     private EnhancedObjectsService objects;
     private Log logger = LogFactory.getLog(CommandsServiceImplementation.class);
 
-
-
-    public CommandsServiceImplementation(CommandsCrud commands, EnhancedUsersService users, EnhancedObjectsService objects) {
+    public CommandsServiceImplementation(CommandsCrud commands, EnhancedUsersService users,
+            EnhancedObjectsService objects) {
         this.commands = commands;
         this.users = users;
         this.objects = objects;
@@ -142,8 +138,10 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         ObjectId obj = newCommand.getTargetObject().getObjectId();
         UserId ui = newCommand.getInvokedBy().getUserId();
 
-        // Check for object existence and active is true (this method will throw if the conditions are not met.)
-        ObjectBoundary op = this.objects.getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId())
+        // Check for object existence and active is true (this method will throw if the
+        // conditions are not met.)
+        ObjectBoundary op = this.objects
+                .getSpecificObject(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId())
                 .orElseThrow(() -> new InvalidCommandException("ERROR - Object not found"));
 
         this.logger.debug("Object found: " + op.toString());
@@ -159,52 +157,78 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         commandEntity.setCommandAttributes(newCommand.getCommandAttributes());
         commandEntity.setInvokedBy(newCommand.getInvokedBy());
 
-
         this.commands.save(commandEntity);
 
         int size = 100;
         int page = 0;
 
-        switch(newCommand.getCommand()) {
-        	case "Get_plants_for_watering":
-        		return this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page)
-        				.stream()
-        				.map(o -> (Object)o)
-        				.collect(Collectors.toList());
-        		
-        	case "Water_plants": {
-        		List<ObjectBoundary> plantsToWater = this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),size,page);
-        		  for (Iterator iterator = plantsToWater.iterator(); iterator.hasNext();) {
-					ObjectBoundary objectBoundary = (ObjectBoundary) iterator.next();
-					Map<String, Object> details = objectBoundary.getObjectDetails();
-			        Set<String> keys = details.keySet();
+        switch (newCommand.getCommand()) {
+            case "Get_plants_for_watering":
+                return this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(), size, page)
+                        .stream()
+                        .map(o -> (Object) o)
+                        .collect(Collectors.toList());
 
-			        UserBoundary userBoundary = new UserBoundary();
-			        userBoundary.setUserId(ui);
+            case "Water_plants": {
+                List<ObjectBoundary> plantsToWater = this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),
+                        size, page);
 
-			        if ((keys.contains("isRaining") && details.get("isRaining") instanceof Boolean) || 
-			        		!keys.contains("isRaining")) {
-			            Boolean isRaining = keys.contains("isRaining") ? (boolean) details.get("isRaining") : false;
-			            if (!isRaining) {
-			            	if (keys.contains("optimalSoilMoistureLevel") &&
-			                        details.get("optimalSoilMoistureLevel") != null &&
-			                        details.get("optimalSoilMoistureLevel") instanceof Integer) {
-			            		details.put("currentSoilMoistureLevel", details.get("optimalSoilMoistureLevel"));
-			            		userBoundary.setRole(UserRole.OPERATOR);
-			            		users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary);
-			            		objects.update(ui.getSystemID(), ui.getEmail(), obj.getSystemID(), obj.getId(), objectBoundary);
-			            		userBoundary.setRole(UserRole.END_USER);
-			            		users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary);
-			            	}
-			            }  
-			        }
-				}
-        		return plantsToWater.stream()
-        				.map(o -> (Object)o)
-        				.collect(Collectors.toList());
-        	}
-        	default:
-        		break;
+                UserBoundary userBoundary = new UserBoundary();
+                userBoundary.setUserId(ui);
+                userBoundary.setRole(UserRole.OPERATOR);
+                users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary); // update user role to
+                                                                                 // operator - in order to
+                                                                                 // update object
+    
+                for (Iterator iterator = plantsToWater.iterator(); iterator.hasNext();) {
+                    ObjectBoundary objectBoundary = (ObjectBoundary) iterator.next();
+                    Map<String, Object> details = objectBoundary.getObjectDetails();
+                    Set<String> keys = details.keySet();
+
+
+                    // If there is an entry with key isRaining with boolean value - check it
+                    // If there isn't an isRaining entry - default isRaining value is false
+                    
+                    Boolean isRaining;
+                    if (details.get("isRaining") == null ){
+                        isRaining = false;
+                        details.put("isRaining",isRaining);
+                    } else if (details.get("isRaining") instanceof Boolean){
+                        isRaining = (Boolean) details.get("isRaining");
+                    } else {
+                        logger.error("Water_plants command: object " + objectBoundary.getObjectId() +  ", contains illegal isRaining!");
+                        throw new InvalidInputException("Could not water " + objectBoundary.getObjectId().getId() + " right now due to invalid isRaining, try again later!");
+                        
+                    }
+                
+
+                    if (!isRaining) {
+                        if (keys.contains("optimalSoilMoistureLevel") &&
+                                details.get("optimalSoilMoistureLevel") != null &&
+                                details.get("optimalSoilMoistureLevel") instanceof Integer) {
+                            details.put("currentSoilMoistureLevel", details.get("optimalSoilMoistureLevel"));
+
+
+                            objects.update(ui.getSystemID(), ui.getEmail(), objectBoundary.getObjectId().getSystemID(), objectBoundary.getObjectId().getId(),
+                                    objectBoundary);
+                            
+                        }
+                    }
+
+                }
+                userBoundary.setRole(UserRole.END_USER); // restore end user permissions
+                users.updateUser(ui.getSystemID(), ui.getEmail(), userBoundary);
+
+                // now, get all plants that need watering after the watering (should return the
+                // plants with isRaining = true)
+                plantsToWater = this.objects.getPlantsForWatering(ui.getSystemID(), ui.getEmail(),
+                        size, page);
+                return plantsToWater.stream()
+                        .map(o -> (Object) o)
+                        .collect(Collectors.toList());
+            }
+            default:
+                break;
         }
 
         CommandBoundary response = new CommandBoundary(commandEntity);
@@ -214,7 +238,6 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         return List.of(response);
 
     }
-
 
     @Override
     @Deprecated
@@ -252,10 +275,10 @@ public class CommandsServiceImplementation implements EnhancedCommandService {
         this.logger.debug("Returning all commands");
 
         return this.commands
-            .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
-            .stream()
-            .map(CommandBoundary::new)
-            .toList();
+                .findAll(PageRequest.of(page, size, Direction.DESC, "invocationTimestamp", "commandId"))
+                .stream()
+                .map(CommandBoundary::new)
+                .toList();
     }
 
     @Override
