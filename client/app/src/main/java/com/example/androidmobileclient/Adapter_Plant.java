@@ -1,11 +1,13 @@
 package com.example.androidmobileclient;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.androidmobileclient.databinding.ItemPlantBinding;
 import com.example.androidmobileclient.plant.Plant;
 
@@ -15,10 +17,13 @@ public class Adapter_Plant extends RecyclerView.Adapter<Adapter_Plant.PlantViewH
 
     private List<Plant> plantList;
     private OnItemClickListener listener;
+    private Context context;
 
-    public Adapter_Plant(List<Plant> plantList) {
+    public Adapter_Plant(Context context,List<Plant> plantList) {
+        this.context = context;
         this.plantList = plantList;
     }
+
     public void updateList(List<Plant> plantList) {
         this.plantList = plantList;
         notifyDataSetChanged();
@@ -69,7 +74,12 @@ public class Adapter_Plant extends RecyclerView.Adapter<Adapter_Plant.PlantViewH
 
         public void bind(Plant plant) {
             binding.LBLTitle.setText(plant.getAlias());
-            //binding.IMGImage.setImageResource(plant.getImage());
+            Glide
+                    .with(context)
+                    .load(plant.getImage())
+                    .centerCrop()
+                    .placeholder(R.drawable.img_crop)
+                    .into(binding.IMGImage);
         }
     }
 }
