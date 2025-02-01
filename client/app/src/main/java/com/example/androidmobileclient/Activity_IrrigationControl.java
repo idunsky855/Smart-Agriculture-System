@@ -122,8 +122,8 @@ public class Activity_IrrigationControl extends AppCompatActivity {
         Intent intent = new Intent(this, Activity_Plant.class);
         intent.putExtra("plantSystemID", plant.getObjectId().systemID);
         intent.putExtra("plantId", plant.getObjectId().id);
-        intent.putExtra("userSystemID", plant.getCreatedBy().userId.systemID);
-        intent.putExtra("userEmail", plant.getCreatedBy().userId.email);
+        intent.putExtra("userSystemID", systemID);
+        intent.putExtra("userEmail", userEmail);
         startActivity(intent);
     }
 
