@@ -2,20 +2,20 @@
 
 ## Table of Contents
 
-    -   [Overview](#overview)
-    -   [Team Members and Roles](#team-members-and-roles)
-    -   [Development Methodology](#development-methodology)
-    -   [Installation Guide](#installation-guide)
-        -   [Docker Installation](#docker-installation)
-        -   [Installing IDE (Recommended for Running the Project Comfortably)](#installing-ide-recommended-for-running-the-project-comfortably)
-        -   [Installing Android Studio - For Running the Client](#installing-android-studio---for-running-the-client)
-    -   [How to Run?](#how-to-run)
-        -   [Running the Server](#running-the-server)
-        -   [Running the Android Client](#running-the-android-client)
-        -   [Python Script](#python-script)
-    -   [Notes](#notes)
-        -   [General](#general)
-        -   [Database Access](#database-access)
+-   [Overview](#overview)
+-   [Team Members and Roles](#team-members-and-roles)
+-   [Development Methodology](#development-methodology)
+-   [Installation Guide](#installation-guide)
+    -   [Docker Installation](#docker-installation)
+    -   [Installing IDE (Recommended for Running the Project Comfortably)](#installing-ide-recommended-for-running-the-project-comfortably)
+    -   [Installing Android Studio - For Running the Client](#installing-android-studio---for-running-the-client)
+-   [How to Run?](#how-to-run)
+    -   [Running the Server](#running-the-server)
+    -   [Running the Android Client](#running-the-android-client)
+    -   [Python Script](#python-script)
+-   [Notes](#notes)
+    -   [General](#general)
+    -   [Database Access](#database-access)
           
 
 ## Overview 
