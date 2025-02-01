@@ -1,8 +1,6 @@
 package aii.presentation;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +22,6 @@ public class CommandController {
 
     private EnhancedCommandService commands;
 
-
     public CommandController(EnhancedCommandService commands) {
         this.commands = commands;
     }
@@ -37,8 +34,8 @@ public class CommandController {
         @RequestParam(name = "userEmail", required = true) String userEmail,
         @RequestParam(name = "page", required = false, defaultValue = "0") int page,
         @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+
         CommandBoundary[] rv = this.commands.getAllCommands(userSystemID, userEmail, page, size).toArray(new CommandBoundary[0]);
-        System.out.println("[DEBUG] - All commands: " + Arrays.toString(rv));
         return rv;
     }
 
@@ -47,22 +44,14 @@ public class CommandController {
         path = {"/aii/commands"},
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public CommandBoundary[] addNewCommand(@RequestBody CommandBoundary newCommand) {
+    public Object[] addNewCommand(@RequestBody CommandBoundary newCommand) {
 
-    // Pass the command to the service layer for processing
-    List<Object> result = this.commands.invokeCommand(newCommand);
+        // Pass the command to the service layer for processing
+        List<Object> result = this.commands.invokeCommand(newCommand);
 
-    // Ensure the returned list contains only CommandBoundary objects
-    List<CommandBoundary> commandBoundaries =
-        result
-            .stream()
-            .filter(obj -> obj instanceof CommandBoundary) // Ensure type safety
-            .map(obj -> (CommandBoundary) obj)
-            .collect(Collectors.toList());
-
-    // Convert the list to an array
-    return commandBoundaries.toArray(new CommandBoundary[0]);
-}
+        // Convert the list to an array
+        return result.toArray(new Object[0]);
+    }
 
     // DELETE all commands
     @DeleteMapping("/aii/admin/commands")
@@ -71,6 +60,5 @@ public class CommandController {
         @RequestParam(name = "userSystemID", required=true) String userSystemID,
         @RequestParam(name = "userEmail", required=true) String userEmail) {
         this.commands.deleteAllCommands(userSystemID, userEmail);
-        System.out.println("[INFO] - All commands have been deleted.");
     }
 }

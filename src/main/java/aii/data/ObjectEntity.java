@@ -25,6 +25,14 @@ public class ObjectEntity {
     private String alias;
     private String status;
 
+    private Integer currentSoilMoistureLevel;
+    private Integer currentLightLevelIntensity;
+    
+    private Integer optimalSoilMoistureLevel;
+    private Integer optimalLightLevelIntensity;
+
+    private String relatedObjectId;
+
     private double lat;
     private double lng;
 
@@ -130,11 +138,61 @@ public class ObjectEntity {
         this.objectDetails = objectDetails;
     }
 
+    
+    public Integer getCurrentSoilMoistureLevel(){
+        return this.currentSoilMoistureLevel;
+    }
+    public Integer getCurrentLightLevelIntensity(){
+        return this.currentLightLevelIntensity;
+    }
+    public Integer getOptimalSoilMoistureLevel(){
+        return this.optimalSoilMoistureLevel;
+    }
+    public Integer getOptimalLightLevelIntensity(){
+        return this.optimalLightLevelIntensity;
+    }
+    public String getRelatedObjectId(){
+        return this.relatedObjectId;
+    }
+    
+    public void setCurrentSoilMoistureLevel(int currentSoilMoistureLevel){
+        this.currentSoilMoistureLevel = currentSoilMoistureLevel;
+    }
+
+    public void setCurrentLightLevelIntensity(int currentLightLevelIntensity){
+        this.currentLightLevelIntensity = currentLightLevelIntensity;
+    }
+    public void setOptimalSoilMoistureLevel(int optimalSoilMoistureLevel){
+        this.optimalSoilMoistureLevel = optimalSoilMoistureLevel;
+    }
+    public void setOptimalLightLevelIntensity(int optimalLightLevelIntensity){
+        this.optimalLightLevelIntensity = optimalLightLevelIntensity;
+    }
+    public void setRelatedObjectId(String relatedObjectId){
+        this.relatedObjectId = relatedObjectId;
+    }
+
     @Override
     public String toString() {
-        return "ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + status
+        StringBuilder sb = new StringBuilder();
+        sb.append("ObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", Status=" + status
                 + ", location=[lng = " + lng + ", lat = " + lat + "], active=" + active + ", creationTime="
                 + creationTime + ", createdBy="
-                + createdBy + ", objectDetails=" + objectDetails + "]";
+                + createdBy + ", objectDetails=" + objectDetails);
+
+        if (currentSoilMoistureLevel != null && optimalSoilMoistureLevel != null &&
+             currentLightLevelIntensity != null && optimalLightLevelIntensity != null){
+            
+            sb.append(", soil moisture: [ optimal=" + optimalSoilMoistureLevel + 
+            ", current=" + currentSoilMoistureLevel + "], light level: [ optimal=" +
+             optimalLightLevelIntensity + ", current=" + currentSoilMoistureLevel +" ]");
+        } 
+        
+        if (relatedObjectId != null){
+            sb.append(", relatedObjectId="+ relatedObjectId );
+        }
+        
+        sb.append("]");
+        return sb.toString();
     }
 }

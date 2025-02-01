@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/main"
+    android:keepScreenOn="true"
+    >
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingVertical="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="9dp"
+            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="32dp"
+            >
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/linear_background3"
+                android:padding="16dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LBL_name"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="status"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LBL_status"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="location"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LBL_location"
+                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/LAY_moisture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="9dp"
+            android:clickable="true"
+            android:layout_marginVertical="8dp"
+            android:layout_marginHorizontal="32dp"
+            >
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/linear_background"
+                android:padding="16dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/plantIconImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toTopOf="@+id/LBL_moisture"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/plantHealthTextView"
+                    app:srcCompat="@drawable/ic_soil_moisture"
+                    app:tint="#ffffff" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/plantHealthTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Soil Moisture"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintStart_toEndOf="@+id/plantIconImageView"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_switch"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#ffffff" />
+
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_moisture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="94"
+                    android:textColor="#FFFFFF"
+                    android:textSize="50sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/plantHealthTextView" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="%"
+                    android:textColor="#D5D5D5"
+                    android:textSize="36sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/LBL_moisture"
+                    app:layout_constraintStart_toEndOf="@+id/LBL_moisture" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_moistureDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="The ideal soil moisture is 00%"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/LBL_moisture" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/LAY_lighting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="9dp"
+            android:clickable="false"
+            android:layout_marginVertical="16dp"
+            android:layout_marginHorizontal="32dp"
+            >
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/linear_background2"
+                android:paddingRight="8dp"
+                android:paddingLeft="16dp"
+                android:paddingVertical="16dp"
+                >
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/plant2IconImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:scaleType="fitCenter"
+                    app:tint="#ffffff"
+                    app:layout_constraintBottom_toTopOf="@+id/LBL_lightning"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/plant2HealthTextView"
+                    app:srcCompat="@drawable/ic_brightness" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/plant2HealthTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Lightning"
+                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                    android:textColor="#ffffff"
+                    app:layout_constraintStart_toEndOf="@+id/plant2IconImageView"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/BTN_lightningP"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    app:icon="@drawable/ic_plus"
+                    app:iconSize="36dp"
+                    app:iconTint="#ffffff"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/BTN_lightningM"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="8dp"
+                    app:icon="@drawable/ic_minus"
+                    app:iconSize="36dp"
+                    app:iconTint="#ffffff"
+                    app:layout_constraintEnd_toStartOf="@+id/BTN_lightningP"
+                    app:layout_constraintTop_toTopOf="@+id/BTN_lightningP" />
+
+
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_lightning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00"
+                    android:textSize="50sp"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toBottomOf="@+id/plant2HealthTextView"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="%"
+                    android:textSize="36sp"
+                    android:textColor="#D5D5D5"
+                    app:layout_constraintStart_toEndOf="@+id/LBL_lightning"
+                    app:layout_constraintBottom_toBottomOf="@+id/LBL_lightning"
+                    />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/LBL_lightningDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="The ideal lighting level is 000"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="#ffffff"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/LBL_lightning"
+                    android:layout_marginTop="4dp"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/BTN_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="16dp"
+            android:text="Edit"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</RelativeLayout>

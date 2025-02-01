@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingVertical="32dp"
+        android:paddingHorizontal="64dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/IMG_logo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/plant_logo" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/LBL_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp"
+            android:textSize="32sp"
+            android:text="Menu"
+            />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/LBL_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="16dp"
+            android:text="Hello username!"
+            android:textSize="18sp"
+            android:gravity="center"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/BTN_newPlant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Add new plant"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/BTN_viewAllPlant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="View all plants"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/BTN_irrigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Irrigation Control"
+            />
+
+        <!--com.google.android.material.button.MaterialButton
+            android:id="@+id/BTN_editProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="edit your profile"
+            /-->
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+</RelativeLayout>

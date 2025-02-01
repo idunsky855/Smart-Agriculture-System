@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.androidmobileclient"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.androidmobileclient"
@@ -14,6 +14,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     buildTypes {
@@ -40,4 +44,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // Rest API calls
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    //Glide
+    implementation(libs.glide)
 }

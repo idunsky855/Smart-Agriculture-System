@@ -1,10 +1,9 @@
 package aii.logic.converters;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import aii.logic.InvokedBy;
 import aii.logic.UserId;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class InvokedByConverter implements AttributeConverter<InvokedBy, String> {
@@ -13,7 +12,6 @@ public class InvokedByConverter implements AttributeConverter<InvokedBy, String>
     public String convertToDatabaseColumn(InvokedBy invokedBy) {
         // Handle null checks
         if (invokedBy == null || invokedBy.getUserId() == null) {
-            System.out.println("InvokedBy is null");
             return null;
         }
 
@@ -22,14 +20,12 @@ public class InvokedByConverter implements AttributeConverter<InvokedBy, String>
         String systemID = userId.getSystemID();
         String email = userId.getEmail();
 
-        System.out.println("InvokedBy: " + systemID + " " + email);
         return systemID + "@@" + email;
     }
 
     @Override
     public InvokedBy convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isBlank()) {
-            System.out.println("InvokedBy is null in revrese");
             return null;
         }
 
@@ -48,7 +44,6 @@ public class InvokedByConverter implements AttributeConverter<InvokedBy, String>
         InvokedBy invokedBy = new InvokedBy();
         invokedBy.setUserId(userId);
 
-        System.out.println("InvokedBy: " + userId.getSystemID() + " " + userId.getEmail());
 
         return invokedBy;
     }

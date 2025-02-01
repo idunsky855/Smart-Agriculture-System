@@ -86,7 +86,7 @@ public class CommandBoundary {
         return "CommandBoundary: {" + commandId
                 + command + '\''
                 + targetObject
-                + invocationTimestamp.toString() + '\''
+                + invocationTimestamp + '\''
                 + invokedBy
                 + commandAttributes +
                 '}';

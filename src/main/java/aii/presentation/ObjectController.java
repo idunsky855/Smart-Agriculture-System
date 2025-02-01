@@ -1,7 +1,5 @@
 package aii.presentation;
 
-import java.util.Arrays;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +50,6 @@ public class ObjectController {
 			@RequestParam(name = "userSystemID", required = true) String systemID,
 			@RequestParam(name = "userEmail", required = true) String email) {
 		ObjectBoundary[] rv = this.objects.getAll(systemID, email, page, size).toArray(new ObjectBoundary[0]);
-		System.err.println("*** " + Arrays.toString(rv));
 		return rv;
 	}
 
@@ -108,7 +105,6 @@ public class ObjectController {
 		} catch (UserUnauthorizedException e) {
 			throw e;
 		} catch (Exception e) {
-			System.err.println("[ERROR] - Something went wrong while trying to erase the objects Database.");
 			throw new RuntimeException("Something went wrong while trying to erase the objects Database");
 		}
 	}
