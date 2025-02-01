@@ -23,6 +23,9 @@ public class Activity_Plants extends AppCompatActivity {
 
     ActivityPlantsBinding binding;
 
+    private String systemID ;
+    private String userEmail;
+
     private Adapter_Plant adapter;
     private List<Plant> plantList;
 
@@ -38,6 +41,9 @@ public class Activity_Plants extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        systemID = getIntent().getStringExtra("systemID");
+        userEmail = getIntent().getStringExtra("userEmail");
 
         binding.FABAdd.setOnClickListener(view -> addNewClicked());
 
@@ -67,8 +73,7 @@ public class Activity_Plants extends AppCompatActivity {
     private void updateList() {
         PlantController plantController = new PlantController();
 
-        String systemID = getIntent().getStringExtra("systemID");
-        String userEmail = getIntent().getStringExtra("userEmail");
+
 
         Log.d("ptttt",systemID+"@@"+userEmail);
 
@@ -94,8 +99,8 @@ public class Activity_Plants extends AppCompatActivity {
         Intent intent = new Intent(this, Activity_Plant.class);
         intent.putExtra("plantSystemID", plant.getObjectId().systemID);
         intent.putExtra("plantId", plant.getObjectId().id);
-        intent.putExtra("userSystemID", plant.getCreatedBy().userId.systemID);
-        intent.putExtra("userEmail", plant.getCreatedBy().userId.email);
+        intent.putExtra("userSystemID", systemID); // current logged in user
+        intent.putExtra("userEmail", userEmail); // current logged in user
         startActivity(intent);
     }
 
