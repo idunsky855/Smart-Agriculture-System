@@ -2,7 +2,7 @@
 
 ## Table of Contents
 
-   -   [Overview](#overview)
+    -   [Overview](#overview)
     -   [Team Members and Roles](#team-members-and-roles)
     -   [Development Methodology](#development-methodology)
     -   [Installation Guide](#installation-guide)
