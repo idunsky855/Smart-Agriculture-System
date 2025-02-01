@@ -3,7 +3,6 @@ package com.example.androidmobileclient;
 import android.os.Bundle;
 
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -80,32 +79,3 @@ public class Activity_Login extends AppCompatActivity {
         finish();
     }
 }
-
-/*
-{
-  "type": "string",
-  "alias": "string",
-  "status": "string",
-  "location": {
-    "lat": 0.1,
-    "lng": 0.1
-  },
-  "active": true,
-  "createdBy": {
-    "userId": {
-      "systemID": "2025a.Liron.Barshishat",
-      "email": "opera@gmail.com"
-    }
-  },
-  "objectDetails": {
-    "currentSoilMoistureLevel": "50",
-    "optimalSoilMoistureLevel": "80",
-    "currentLightLevelIntensity": "22",
-    "optimalLightLevelIntensity": "20"
-  }
-}
-
-2025a.Liron.Barshishat
-opera@gmail.com
-
- */

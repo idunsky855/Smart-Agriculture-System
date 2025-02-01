@@ -15,8 +15,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UserController {
 
-    //private static final String BASE_URL = "http://192.168.1.103:8081/";
-
     private UserCallBack<User> userCallBack;
 
 

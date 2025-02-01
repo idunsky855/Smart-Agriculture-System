@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="add new plant"
+            android:text="Add new plant"
             />
 
         <com.google.android.material.button.MaterialButton
@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="view all plants"
+            android:text="View all plants"
             />
 
         <com.google.android.material.button.MaterialButton
@@ -65,16 +65,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Irrigation System"
+            android:text="Irrigation Control"
             />
 
-        <com.google.android.material.button.MaterialButton
+        <!--com.google.android.material.button.MaterialButton
             android:id="@+id/BTN_editProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="edit your profile"
-            />
+            /-->
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

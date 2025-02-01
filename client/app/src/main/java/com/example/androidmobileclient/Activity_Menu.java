@@ -36,7 +36,8 @@ public class Activity_Menu extends AppCompatActivity {
 
         binding.BTNNewPlant.setOnClickListener(v -> addNewPlant());
         binding.BTNViewAllPlant.setOnClickListener(v -> viewAllPlants());
-        binding.BTNEditProfile.setOnClickListener(v -> editProfile());
+        binding.BTNIrrigation.setOnClickListener(v -> viewPlantsToWater());
+        //binding.BTNEditProfile.setOnClickListener(v -> editProfile());
 
         systemID = getIntent().getStringExtra("systemID");
         userEmail = getIntent().getStringExtra("userEmail");
@@ -45,6 +46,7 @@ public class Activity_Menu extends AppCompatActivity {
         LBL_user = binding.LBLUser;
         LBL_user.setText(getString(R.string.hello_text,username));
     }
+
 
     private void addNewPlant() {
         Intent intent = new Intent(this, Activity_NewPlant.class);
@@ -60,9 +62,11 @@ public class Activity_Menu extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void editProfile() {
-
+    private void viewPlantsToWater() {
+        Intent intent = new Intent(this, Activity_IrrigationControl.class);
+        intent.putExtra("systemID", systemID);
+        intent.putExtra("userEmail", userEmail);
+        startActivity(intent);
     }
-
 
 }

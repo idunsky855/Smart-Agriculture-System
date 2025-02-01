@@ -4,6 +4,7 @@ import static com.example.androidmobileclient.App.BASE_URL;
 
 import android.util.Log;
 
+import com.example.androidmobileclient.command.IrrigationControllerObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -17,11 +18,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlantController {
 
-    //private static final String BASE_URL = "http://192.168.1.103:8081/";
-
     private MyCallBack<List<Plant>> myPlantsCallBack;
     private MyCallBack<Plant> myPlantCallBack;
     private MyCallBack<Void> myVoidCallback;
+    private MyCallBack<List<IrrigationControllerObject>> myIrrigationControllerObjectCallback;
 
     private PlantApi getAPI() {
         Gson gson = new GsonBuilder()
@@ -61,6 +61,14 @@ public class PlantController {
         Call<Plant> call = getAPI().createPlant(plant);
 
         call.enqueue(plantCallback);
+    }
+
+    public void getIrrigationControlObject(String userSystemID, String userEmail, MyCallBack<List<IrrigationControllerObject>> myCallBack) {
+        this.myIrrigationControllerObjectCallback = myCallBack;
+
+        Call<List<IrrigationControllerObject>> call = getAPI().getIrrigationControllerObject(userSystemID, userEmail,1,0);
+
+        call.enqueue(irrigationControlCallback);
     }
 
 
@@ -173,6 +181,39 @@ public class PlantController {
             myVoidCallback.failed(throwable);
         }
     };
+
+    private final Callback<List<IrrigationControllerObject>> irrigationControlCallback = new Callback<List<IrrigationControllerObject>>() {
+        @Override
+        public void onResponse(Call<List<IrrigationControllerObject>> call, Response<List<IrrigationControllerObject>> response) {
+            if (myIrrigationControllerObjectCallback == null) {
+                return;
+            }
+            if(response.code() >= 200 && response.code() < 300) {
+                Log.d("ptttt", "response: " + response.body());
+                myIrrigationControllerObjectCallback.ready(response.body());
+            }
+            else {
+                String error;
+                if(response.code() == 404 || response.code() == 401){
+                    error = "User is unauthorized";
+                }else{
+                    error = "HTTP ERROR: " + response.code() + " Bad Request";
+                }
+                myIrrigationControllerObjectCallback.failed(new Exception(error));
+                Log.d("ptttt", error);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<IrrigationControllerObject>> call, Throwable throwable) {
+            Log.d("ptttt","error - " + throwable.getMessage());
+            if (myIrrigationControllerObjectCallback == null) {
+                return;
+            }
+            myPlantsCallBack.failed(throwable);
+        }
+    };
+
 
     public interface MyCallBack<T> {
         void ready(T data);

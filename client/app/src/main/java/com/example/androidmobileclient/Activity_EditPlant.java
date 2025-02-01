@@ -179,7 +179,7 @@ public class Activity_EditPlant extends AppCompatActivity {
         intent.putExtra("plantId", plantId);
         intent.putExtra("userSystemID", userSystemID);
         intent.putExtra("userEmail", userEmail);
-        startActivity(intent);
+        //startActivity(intent);
         finish();
     }
 
@@ -190,7 +190,7 @@ public class Activity_EditPlant extends AppCompatActivity {
         intent.putExtra("plantId", plantId);
         intent.putExtra("userSystemID", userSystemID);
         intent.putExtra("userEmail", userEmail);
-        startActivity(intent);
+        //startActivity(intent);
         finish();
     }
 

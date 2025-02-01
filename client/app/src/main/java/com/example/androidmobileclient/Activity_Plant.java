@@ -179,8 +179,20 @@ public class Activity_Plant extends AppCompatActivity {
         }
         // don't change the image
         temp.getObjectDetails().put("Image",this.plant.getImage());
+        // don't change active
+        temp.setActive(this.plant.isActive());
 
-        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
+        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, new PlantController.MyCallBack<Void>() {
+            @Override
+            public void ready(Void data) {
+
+            }
+
+            @Override
+            public void failed(Throwable throwable) {
+                Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -207,8 +219,20 @@ public class Activity_Plant extends AppCompatActivity {
 
         // don't change the image
         temp.getObjectDetails().put("Image",this.plant.getImage());
+        // don't change active
+        temp.setActive(this.plant.isActive());
 
-        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
+        plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, new PlantController.MyCallBack<Void>() {
+            @Override
+            public void ready(Void data) {
+
+            }
+
+            @Override
+            public void failed(Throwable throwable) {
+                Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void editClicked() {
