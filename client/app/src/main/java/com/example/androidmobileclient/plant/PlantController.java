@@ -21,6 +21,7 @@ public class PlantController {
 
     private MyCallBack<List<Plant>> myPlantsCallBack;
     private MyCallBack<Plant> myPlantCallBack;
+    private MyCallBack<Void> myVoidCallback;
 
     private PlantApi getAPI() {
         Gson gson = new GsonBuilder()
@@ -63,18 +64,19 @@ public class PlantController {
     }
 
 
-    public void updatePlant(String plantSystemID, String plantId, String userSystemID, String userEmail, Plant plant, MyCallBack<Plant> myCallBack) {
-        this.myPlantCallBack = myCallBack;
+    public void updatePlant(String plantSystemID, String plantId, String userSystemID, String userEmail, Plant plant, MyCallBack<Void> myCallBack) {
+        this.myVoidCallback = myCallBack;
 
-        Call<Plant> call = getAPI().updatePlant(plantSystemID, plantId, userSystemID, userEmail, plant);
+        Call<Void> call = getAPI().updatePlant(plantSystemID, plantId, userSystemID, userEmail, plant);
 
-        call.enqueue(plantCallback);
+        call.enqueue(updatePlantCallback);
     }
 
 
     private final Callback<Plant> plantCallback = new Callback<Plant>() {
         @Override
         public void onResponse(Call<Plant> call, Response<Plant> response) {
+            Log.d("ptttt", "enter test: " + response.body());
             if (myPlantCallBack == null) {
                 Log.d("ptttt", "response: " + response.body());
                 return;
@@ -134,6 +136,41 @@ public class PlantController {
                 return;
             }
             myPlantsCallBack.failed(throwable);
+        }
+    };
+
+    private final Callback<Void> updatePlantCallback = new Callback<Void>() {
+        @Override
+        public void onResponse(Call<Void> call, Response<Void> response) {
+            Log.d("ptttt", "enter test: " + response.body());
+
+            if (myVoidCallback == null) {
+                Log.d("ptttt", "response: " + response.body());
+                return;
+            }
+            if(response.code() >= 200 && response.code() < 300) {
+                Log.d("ptttt", "response: " + response.body());
+                myVoidCallback.ready(response.body());
+            }
+            else {
+                String error;
+                if(response.code() == 404 || response.code() == 401){
+                    error = "User is unauthorized";
+                }else{
+                    error = "HTTP ERROR: " + response.code() + " Bad Request";
+                }
+                myVoidCallback.failed(new Exception(error));
+                Log.d("ptttt", error);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<Void> call, Throwable throwable) {
+            Log.d("ptttt","error - " + throwable.getMessage());
+            if (myVoidCallback == null) {
+                return;
+            }
+            myVoidCallback.failed(throwable);
         }
     };
 

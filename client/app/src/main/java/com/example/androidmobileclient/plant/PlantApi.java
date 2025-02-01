@@ -45,7 +45,7 @@ public interface PlantApi {
 
     @Headers({"Content-Type: application/json"})
     @PUT("/aii/objects/{systemID}/{id}")
-    Call<Plant> updatePlant(
+    Call<Void> updatePlant(
             @Path("systemID") String systemID,
             @Path("id") String id,
             @Query("userSystemID") String userSystemID,

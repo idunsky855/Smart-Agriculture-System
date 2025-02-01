@@ -16,7 +16,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.androidmobileclient.databinding.ActivityNewPlantBinding;
 import com.example.androidmobileclient.plant.Plant;
 import com.example.androidmobileclient.plant.PlantController;
-import com.example.androidmobileclient.user.User;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 public class Activity_NewPlant extends AppCompatActivity {
@@ -74,43 +73,46 @@ public class Activity_NewPlant extends AppCompatActivity {
         double lng = Double.parseDouble( binding.EDTLocationLng.getEditText().getText().toString());
         int optimalMoistureLvl = Integer.parseInt(binding.EDTOptimalMoistureLvl.getEditText().getText().toString());
         int optimalLightIntensity = Integer.parseInt(binding.EDTOptimalLightIntensity.getEditText().getText().toString());
-        boolean active = binding.swichActive.isChecked();
+        boolean active = binding.switchActive.isChecked();
 
-        if(!alias.isBlank() && !status.isBlank() /*&& !lat.isBlank()  && !lng.isBlank() && !optimalMoistureLvl.isBlank() && !optimalLightIntensity.isBlank()*/){
-            Plant plant = new Plant()
-                    .setType("Plant")
-                    .setAlias(alias)
-                    .setStatus(status)
-                    .setLocation(lat,lng)
-                    .setOptimalSoilMoistureLevel(optimalMoistureLvl)
-                    .setCurrentSoilMoistureLevel(0)
-                    .setOptimalLightLevelIntensity(optimalLightIntensity)
-                    .setCurrentLightLevelIntensity(0)
-                    .setActive(active)
-                    .setCreatedBy(systemID,userEmail);
+        if(optimalMoistureLvl > 100 || optimalLightIntensity > 100)
+            Toast.makeText(this,"Invalid input",Toast.LENGTH_SHORT).show();
+        else {
+            if (!alias.isBlank() && !status.isBlank() /*&& !lat.isBlank()  && !lng.isBlank() && !optimalMoistureLvl.isBlank() && !optimalLightIntensity.isBlank()*/) {
+                Plant plant = new Plant()
+                        .setType("Plant")
+                        .setAlias(alias)
+                        .setStatus(status)
+                        .setLocation(lat, lng)
+                        .setOptimalSoilMoistureLevel(optimalMoistureLvl)
+                        .setCurrentSoilMoistureLevel(0)
+                        .setOptimalLightLevelIntensity(optimalLightIntensity)
+                        .setCurrentLightLevelIntensity(0)
+                        .setActive(active)
+                        .setCreatedBy(systemID, userEmail);
 
-            plantController.addNewPlant(plant,new PlantController.MyCallBack<Plant>() {
-                @Override
-                public void ready(Plant data) {
-                    plantCreated(data);
-                }
+                plantController.addNewPlant(plant, new PlantController.MyCallBack<Plant>() {
+                    @Override
+                    public void ready(Plant data) {
+                        plantCreated(data);
+                    }
 
-                @Override
-                public void failed(Throwable throwable) {
-                    Toast.makeText(getApplicationContext(),throwable.getMessage(),Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void failed(Throwable throwable) {
+                        Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
     }
 
     private void plantCreated(Plant plant) {
         Toast.makeText(this, plant.getAlias() + " created successfully", Toast.LENGTH_SHORT).show();
-        //Integer prev = getIntent()
-        //Intent intent = new Intent(this, Activity_Plants.class);
-        //intent.putExtra("systemID",systemID);
-        //intent.putExtra("userEmail", userEmail);
-        //startActivity(intent);
+        Intent intent = new Intent(this, Activity_Plants.class);
+        intent.putExtra("systemID",systemID);
+        intent.putExtra("userEmail", userEmail);
+        startActivity(intent);
         finish();
     }
 
