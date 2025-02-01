@@ -130,6 +130,7 @@ You can use any other IDE with Android development support, such as **IntelliJ I
 
 ## How to Run?
 
+
 ### Running the Server
 
 1.  **Clone the Repository:**
@@ -155,7 +156,27 @@ You can use any other IDE with Android development support, such as **IntelliJ I
     
     ```
     
-4.  **Run the Server:**
+4.  **Configure Database Settings:**
+    
+    -   Open the `application.properties` file.
+    -   Before the **first run**, set the following property:
+        
+        ```properties
+        spring.jpa.hibernate.ddl-auto=create
+        
+        ```
+        
+    -   **Important:** After the first run, change the value back to:
+        
+        ```properties
+        spring.jpa.hibernate.ddl-auto=validate
+        
+        ```
+        
+    
+    This ensures the database schema is created initially and validated in subsequent runs.
+    
+5.  **Run the Server:**
     
     -   In STS, click the green **Play** button to start the server.
     -   Alternatively, you can run the application from the terminal using:
@@ -164,7 +185,6 @@ You can use any other IDE with Android development support, such as **IntelliJ I
         ./gradlew bootRun
         
         ```
-
 ### Running the Android Client
 
 After ensuring the server is up and running (refer to the **Run the Server** section if it’s not), follow these steps to run the Android client:
