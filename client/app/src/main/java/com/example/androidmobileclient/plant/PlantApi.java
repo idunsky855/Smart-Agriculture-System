@@ -18,9 +18,7 @@ public interface PlantApi {
     @GET("/aii/objects")
     Call<List<Plant>> getAllObjects(
             @Query("userSystemID") String _userSystemID,
-            @Query("userEmail") String _userEmail/*,
-            @Query("size") int _size,
-            @Query("page") int _page*/
+            @Query("userEmail") String _userEmail
     );
 
     @GET("/aii/objects/search/byType/Plant")

@@ -1,9 +1,6 @@
 package com.example.androidmobileclient.plant;
 
-import android.util.Log;
-
 import java.util.HashMap;
-import java.util.Map;
 
 public class Plant {
 
@@ -16,11 +13,6 @@ public class Plant {
     private String creationTimestamp;
     private CreatedBy createdBy;
     private HashMap<String, Object> objectDetails; // = new HashMap<>();
-    /*private Integer currentSoilMoistureLevel;
-    private Integer currentLightLevelIntensity;
-    private Integer optimalSoilMoistureLevel;
-    private Integer optimalLightLevelIntensity;*/
-    //private String image;
 
 
     public Plant() {

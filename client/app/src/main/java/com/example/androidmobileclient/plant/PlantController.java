@@ -18,8 +18,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlantController {
 
-    //private static final String BASE_URL = "http://192.168.1.103:8081/";
-
     private MyCallBack<List<Plant>> myPlantsCallBack;
     private MyCallBack<Plant> myPlantCallBack;
     private MyCallBack<Void> myVoidCallback;

@@ -16,13 +16,10 @@ import com.example.androidmobileclient.command.Command;
 import com.example.androidmobileclient.command.CommandController;
 import com.example.androidmobileclient.command.IrrigationControllerObject;
 import com.example.androidmobileclient.databinding.ActivityIrrigationControlBinding;
-import com.example.androidmobileclient.databinding.ActivityPlantsBinding;
 import com.example.androidmobileclient.plant.Plant;
 import com.example.androidmobileclient.plant.PlantController;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class Activity_IrrigationControl extends AppCompatActivity {
@@ -34,7 +31,7 @@ public class Activity_IrrigationControl extends AppCompatActivity {
     private  IrrigationControllerObject targetObject = null;
     private String systemID ;
     private String userEmail;
-    private final String irrigationControlUserEmail = "irrigation@default.com";;
+    private final String irrigationControlUserEmail = "irrigation@default.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +139,14 @@ public class Activity_IrrigationControl extends AppCompatActivity {
             @Override
             public void ready(List<Plant> data) {
                 Log.d("ptttt","data irrigation: " + data);
-                updateListUI(data);
+                if(!data.isEmpty()) {
+                    if(data.get(0).getObjectId() != null){
+                        updateListUI(data);
+                    }
+                }else {
+                    updateListUI(data);
+                    Toast.makeText(getApplicationContext(),"All plants have been watered",Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

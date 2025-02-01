@@ -15,9 +15,6 @@ public interface UserApi {
             @Path(value = "userEmail", encoded = true) String _userEmail
     );
 
-    //@GET("raw/Wd7qE5eM")
-    //Call<User> userLogin();
-
     @Headers({"Content-Type: application/json"})
     @POST("/aii/users")
     Call<User> userSignUp(@Body SignUpModel feature);

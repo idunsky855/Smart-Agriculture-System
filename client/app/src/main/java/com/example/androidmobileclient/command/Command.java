@@ -1,6 +1,5 @@
 package com.example.androidmobileclient.command;
 
-import com.example.androidmobileclient.plant.Plant;
 import com.example.androidmobileclient.user.UserId;
 
 import java.util.Date;

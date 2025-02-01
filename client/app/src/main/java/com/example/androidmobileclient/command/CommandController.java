@@ -5,8 +5,6 @@ import static com.example.androidmobileclient.App.BASE_URL;
 import android.util.Log;
 
 import com.example.androidmobileclient.plant.Plant;
-import com.example.androidmobileclient.plant.PlantApi;
-import com.example.androidmobileclient.plant.PlantController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
