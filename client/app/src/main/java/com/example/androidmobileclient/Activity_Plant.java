@@ -179,6 +179,8 @@ public class Activity_Plant extends AppCompatActivity {
         }
         // don't change the image
         temp.getObjectDetails().put("Image",this.plant.getImage());
+        // don't change active
+        temp.setActive(this.plant.isActive());
 
         plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
 
@@ -207,6 +209,8 @@ public class Activity_Plant extends AppCompatActivity {
 
         // don't change the image
         temp.getObjectDetails().put("Image",this.plant.getImage());
+        // don't change active
+        temp.setActive(this.plant.isActive());
 
         plantController.updatePlant(plantSystemID, plantId, userSystemID, userEmail, temp, null);
     }

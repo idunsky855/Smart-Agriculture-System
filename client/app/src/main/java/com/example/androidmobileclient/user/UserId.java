@@ -7,6 +7,11 @@ public class UserId {
 
     public UserId() {}
 
+    public UserId(String systemID, String email) {
+        this.systemID = systemID;
+        this.email = email;
+    }
+
     public String getSystemID() {
         return systemID;
     }

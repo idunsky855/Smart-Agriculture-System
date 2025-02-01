@@ -112,7 +112,7 @@ public class Activity_NewPlant extends AppCompatActivity {
         Intent intent = new Intent(this, Activity_Plants.class);
         intent.putExtra("systemID",systemID);
         intent.putExtra("userEmail", userEmail);
-        startActivity(intent);
+        //startActivity(intent);
         finish();
     }
 

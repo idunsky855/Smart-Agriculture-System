@@ -1,5 +1,7 @@
 package com.example.androidmobileclient.plant;
 
+import com.example.androidmobileclient.command.IrrigationControllerObject;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -51,5 +53,14 @@ public interface PlantApi {
             @Query("userSystemID") String userSystemID,
             @Query("userEmail") String userEmail,
             @Body Plant plant
+    );
+
+
+    @GET("/aii/objects/search/byType/irrigation_system")
+    Call<List<IrrigationControllerObject>> getIrrigationControllerObject(
+            @Query("userSystemID") String _userSystemID,
+            @Query("userEmail") String _userEmail,
+            @Query("size") int _size,
+            @Query("page") int _page
     );
 }
